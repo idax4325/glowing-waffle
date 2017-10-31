@@ -21,6 +21,8 @@ ResFind::ResFind(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t
     
     lasttimeoffset = 28000;
     
+    fin_roffset = 65000;
+    
     OutputMax = 2500; // Set default output max and min
     OutputMin = 0;
     
@@ -73,7 +75,7 @@ bool ResFind::TakeMeThere()
         roffset += inputRef;
         r_ar[i] = inputRef;
         
-        if(inputRef > roffset + rstd * 50) {
+        if(inputRef > fin_roffset + rstd * 50 && rstd != 0) {
             offset = 0;
             roffset = 0;
             i = 0;
@@ -106,28 +108,28 @@ bool ResFind::TakeMeThere()
             }
             
             offset_ar[0] = offset;
-            offset = 0;                 // reset the offset
-            
             std_ar[0] = Pstd;
-            Pstd = 0;
-            
 //            roffset_ar[0] = roffset;
-//            roffset = 0
-//
 //            rstd_ar[0] = rstd;
-//            rstd = 0;
+            
+            fin_roffset = roffset;
+            
+            offset = 0;
+            Pstd = 0;
+            roffset = 0
+            rstd = 0;
             
         }
         
         
-        if(inputRef > roffset + rstd * 100)
+        if(inputRef > fin_roffset + rstd * 100 && rstd != 0)
         {
             
             int ind = ResFind::indexofSmallestElement(std_ar, oldversions);
             
             offset = offset_ar[ind];
             
-            if(std_ar[ind] > 190000) {         // if there hasn't been made a new offset
+            if(std_ar[ind] > 19000) {         // if there hasn't been made a new offset
                 offset = lasttimeoffset;        // use the old one
             }
             
@@ -207,7 +209,7 @@ void ResFind::Initialize()
     rstd = 0;
     for(int u = 0; u < oldversions; u++) {
         offset_ar[u] = 0;
-        std_ar[u] = 200000;     // if you change this be sure to change
+        std_ar[u] = 20000;     // if you change this be sure to change
                                 // the if(std_ar[ind] > 190000) condtion too
         //roffset_ar[u] = 0;
         //rstd_ar[u] = 0;
