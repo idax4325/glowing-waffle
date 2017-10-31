@@ -1,0 +1,28 @@
+##########################################
+# Syntax Coloring Map For ResFind Library
+##########################################
+
+##########################################
+# Datatypes (KEYWORD1)
+##########################################
+
+ResFind	KEYWORD1
+
+##########################################
+# Methods and Functions (KEYWORD2)
+##########################################
+
+TakeMeThere	KEYWORD2
+Running	KEYWORD2
+SetPiezoStep	KEYWORD2
+SetLimits	KEYWORD2
+SetDistZero	KEYWORD2
+
+##########################################
+# Constants (LITERAL1)
+##########################################
+
+FORWARDS	LITERAL1
+BACKWARDS	LITERAL1
+UPFIRST		LITERAL1
+DOWNFIRST	LITERAL1
