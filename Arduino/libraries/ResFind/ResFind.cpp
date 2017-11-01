@@ -67,10 +67,12 @@ bool ResFind::TakeMeThere()
         input = (float)*myInput;        // Creates a variable just for this iteration of this function with
         inputRef = (float)*myInputRef;  // the value of the input. The class knows the address of the input
                                         // (stored in the pointer myInput) so it can just look up the value.
-        i++;
         
-        offset += input;        // add a bit of the input to the offset
+        offset += input/(float)OffStepsize;        // add a bit of the input to the offset
         P_ar[i] = input;
+        
+        i++;
+
 //        roffset += inputRef;
 //        r_ar[i] = inputRef;
         
@@ -80,16 +82,13 @@ bool ResFind::TakeMeThere()
 //            i = 0;
 //        }
         
-        if(i % OffStepsize == 0 && i!= 0)            // is the offset done collecting inputs?
+        if(i % OffStepsize == 0) //&& i!= 0)            // is the offset done collecting inputs?
         {
-            float tempOffSS = OffStepsize;
-            
-            offset = offset/tempOffSS;
             
             for(int a = 0; a < OffStepsize; a++) {
                 Pstd += pow(P_ar[a] - offset, 2);
             }
-            Pstd = Pstd / ( tempOffSS - 1 );
+            Pstd = Pstd / ( (float)OffStepsize - 1 );
             
 //            roffset = roffset/tempOffSS;
 //
@@ -115,6 +114,7 @@ bool ResFind::TakeMeThere()
             
             offset = 0;
             Pstd = 0;
+            i = 0;
 //            roffset = 0
 //            rstd = 0;
             
@@ -203,8 +203,11 @@ void ResFind::Initialize()
 {
     offset = 0;
     Pstd = 0;
+    i = 0;
 //    roffset = 0;
 //    rstd = 0;
+    
+    
     for(int u = 0; u < oldversions; u++) {
         offset_ar[u] = 0;
         std_ar[u] = 20000;     // if you change this be sure to change

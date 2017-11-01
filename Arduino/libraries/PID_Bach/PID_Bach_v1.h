@@ -71,7 +71,7 @@ class PID
     uint16_t *myVerboseNum;
     int *DirecPoin;
     bool *AutoPoin;
-    int *HillPoin;
+    float *HillPoin;
 
     int outputSum;
     int lastInput;
