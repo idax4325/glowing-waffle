@@ -9,7 +9,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib import pyplot as plt
 import csv
 
-savetofile = 0
+savetofile = 1
 
 t_cur = [0] * 500
 V_cur = [0] * 500
