@@ -19,7 +19,7 @@
  *    reliable defaults, so we need to have the user set them.
  ***************************************************************************/
 PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoint, uint16_t* VerboseNum,
-         int* DirecAddr, bool* AutoAddr, bool* VerbAddr, int* HillAddr, int POn)
+         int* DirecAddr, bool* AutoAddr, bool* VerbAddr, float* HillAddr, int POn)
 {
     myOutput = Output;
     myInput = Input;
@@ -69,7 +69,7 @@ bool PID::Compute()
 {
 if(!*AutoPoin) return false;
 if (*AutoPoin == !lastAuto) PID::Initialize();
-   if(*myInputRef > *HillPoin)
+   if(*myInputRef > *HillPoin * 0.6)
        offcounter++;
    if(offcounter > 20)
    {

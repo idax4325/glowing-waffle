@@ -8,7 +8,7 @@
 #include <cmath>
 
 
-ResFind::ResFind(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoint, uint16_t* VerboseNum, bool* AutoAddr, bool* VerbAddr, int* HillAddr)
+ResFind::ResFind(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoint, uint16_t* VerboseNum, bool* AutoAddr, bool* VerbAddr, float* HillAddr)
 {
     myInput = Input;        // Pass pointer to the input and output to the ResFind
     myInputRef = InputRef;
@@ -21,7 +21,7 @@ ResFind::ResFind(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t
     
     lasttimeoffset = 28000;
     
-    fin_roffset = 65000;
+//    fin_roffset = 65000;
     
     OutputMax = 2500; // Set default output max and min
     OutputMin = 0;
@@ -30,7 +30,6 @@ ResFind::ResFind(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t
     
     running = false;        // Set this boolean to true so it can be changed to false with the pause
                             // functions and thus stop the search if necessary
-    close = false;          // A boolean used to check if we're close to resonance
     
     //iWait = 0;              // parameter that makes it possible to wait a bit with declaring resonance
                             // after seeing PDH start. Might not be useful
@@ -72,14 +71,14 @@ bool ResFind::TakeMeThere()
         
         offset += input;        // add a bit of the input to the offset
         P_ar[i] = input;
-        roffset += inputRef;
-        r_ar[i] = inputRef;
+//        roffset += inputRef;
+//        r_ar[i] = inputRef;
         
-        if(inputRef > fin_roffset + rstd * 50 && rstd != 0) {
-            offset = 0;
-            roffset = 0;
-            i = 0;
-        }
+//        if(inputRef > *HillPoin * 0.6) {
+//            offset = 0;
+////            roffset = 0;
+//            i = 0;
+//        }
         
         if(i % OffStepsize == 0 && i!= 0)            // is the offset done collecting inputs?
         {
@@ -92,13 +91,13 @@ bool ResFind::TakeMeThere()
             }
             Pstd = Pstd / ( tempOffSS - 1 );
             
-            roffset = roffset/tempOffSS;
-            
-            for(int a = 0; a < OffStepsize; a++) {
-                rstd += pow(r_ar[a] - roffset, 2);
-            }
-            
-            rstd = rstd / ( tempOffSS - 1 );
+//            roffset = roffset/tempOffSS;
+//
+//            for(int a = 0; a < OffStepsize; a++) {
+//                rstd += pow(r_ar[a] - roffset, 2);
+//            }
+//
+//            rstd = rstd / ( tempOffSS - 1 );
             
             for(int a = oldversions - 1; a > 0; a--) {  // save old versions
                 offset_ar[a] = offset_ar[a-1];
@@ -112,17 +111,17 @@ bool ResFind::TakeMeThere()
 //            roffset_ar[0] = roffset;
 //            rstd_ar[0] = rstd;
             
-            fin_roffset = roffset;
+//            fin_roffset = roffset;
             
             offset = 0;
             Pstd = 0;
-            roffset = 0
-            rstd = 0;
+//            roffset = 0
+//            rstd = 0;
             
         }
         
         
-        if(inputRef > fin_roffset + rstd * 100 && rstd != 0)
+        if(inputRef > *HillPoin * 0.8)
         {
             
             int ind = ResFind::indexofSmallestElement(std_ar, oldversions);
@@ -136,7 +135,6 @@ bool ResFind::TakeMeThere()
             lasttimeoffset = offset;
             
             *mySetpoint = (uint16_t)offset;    // set the setpoint to the offset
-            *HillPoin = roffset + rstd * 70;
             *AutoPoin = true;
             
             return true;
@@ -205,8 +203,8 @@ void ResFind::Initialize()
 {
     offset = 0;
     Pstd = 0;
-    roffset = 0;
-    rstd = 0;
+//    roffset = 0;
+//    rstd = 0;
     for(int u = 0; u < oldversions; u++) {
         offset_ar[u] = 0;
         std_ar[u] = 20000;     // if you change this be sure to change

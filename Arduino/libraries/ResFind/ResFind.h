@@ -12,7 +12,7 @@ class ResFind
     
     
   // functions **************************************************************************
-    ResFind(uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*, bool*, bool*, int*);                       	// Constructor
+    ResFind(uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*, bool*, bool*, float*);                       	// Constructor
     bool TakeMeThere();						   			// Starts finding the resonance and gives 1 when resonance has been found or if outputlimit has been reached
 	void Running(bool);						    // Start or stop TakeMeThere
     
@@ -40,15 +40,17 @@ class ResFind
     int *HillPoin;
     int OutputMax;
     int OutputMin;
-    bool close, running;
+    bool running;
     uint32_t i;
     const static int oldversions = 4;
-    float offset, Pstd, roffset, rstd;
+    float offset, Pstd;
     float offset_ar [oldversions];
     float lasttimeoffset;
     float std_ar [oldversions];
+    //float roffset, rstd;
     //float roffset_ar [oldversions];
     //float rstd_ar [oldversions];
+    //float fin_roffset;
     int PDHbegini;
     float input;
     float inputRef;
@@ -56,9 +58,8 @@ class ResFind
     bool* VP;
     int writecount, outpu, q;
     const static int OffStepsize = 30;
-    uint16_t r_ar [OffStepsize];
+//    uint16_t r_ar [OffStepsize];
     uint16_t P_ar [OffStepsize];
-    float fin_roffset;
 
     
 };

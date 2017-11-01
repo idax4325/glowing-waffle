@@ -18,7 +18,7 @@ class PID
 
   //commonly used functions **************************************************************************
     PID(uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*, int*, bool*,  // * constructor.  links the PID to the Input, Output, and
-        bool*, int*, int);//   Setpoint.  Initial tuning parameters are also set here.
+        bool*, float*, int);//   Setpoint.  Initial tuning parameters are also set here.
 
     void SetMode(int Mode);               // * sets PID to either Manual (0) or Auto (non-0)
 

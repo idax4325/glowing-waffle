@@ -28,7 +28,7 @@ int inputcount = 0;
 uint16_t Input, InputRef, VerboseNum;
 uint16_t Output = 0, Setpoint = 27000;
 
-int HillHeight;
+float HillHeight = 800; 
 
 ResFind myResFind(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &PIDAuto, &verbosemode, &HillHeight);
 
@@ -79,9 +79,10 @@ void loop() {
     inChar = Serial.read();
     switch(inChar) {
       case 'S': {
-        // turn off something
         Serial.write('R');
         Serial.write('S');
+//        if(!OnResonance) // add option to pause things. the run functions in PID and ResFind should have an optional input and otherwise switch current setting
+        
         break;
       }
       case 'N': {   // toggle whether input is sent
