@@ -30,6 +30,8 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     AutoPoin = AutoAddr;
     HillPoin = HillAddr;
     VP = VerbAddr;
+    
+    lastAuto = false;
 
     PID::SetOutputLimits(0, 3000);				//default output limit corresponds to
 												//the arduino pwm limits
@@ -71,14 +73,17 @@ if(!*AutoPoin) return false;
 if (*AutoPoin == !lastAuto) PID::Initialize();
    if(*myInputRef > *HillPoin * 0.6)
        offcounter++;
-   if(offcounter > 20)
+   if(offcounter > 20)  // SHOULD BE 20 times in a row
    {
        offcounter = 0;
+       *DirecPoin = 2;
        *AutoPoin = false;
+       lastAuto = *AutoPoin;
        //*myOutput = 2047; // seems unnecessary because of the way ResFind ramps
        return false;
    }
    
+  lastAuto = *AutoPoin;
    
   /*Compute all the working error variables*/
   uint16_t input = *myInput;
@@ -99,23 +104,24 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
 
   /*Compute Rest of PID Output*/
   output += outputSum - kd * dInput;
-
-  lastAuto = *AutoPoin;
     
-  output = output >> 6; // Convert from 16 to 12 bits = >> 4 (but that wasn't enough)
+  output = output >> 8; // Convert from 16 to 12 bits = >> 4 (but that wasn't enough)
+
+  output += lastResFindOutput;
     
   if(output > outMax)
   {
       output = outMax; // 80 % of outmax
-      *DirecPoin = 2; // Backwards
-      *AutoPoin = false;
+      //*DirecPoin = 2; // Backwards
+      //*AutoPoin = false;
   }
   else if(output < outMin)
   {
       output = outMin; // 20 % of outmax
-      *DirecPoin = 4; // Forwards
-      *AutoPoin = false;
+      //*DirecPoin = 4; // Forwards
+      //*AutoPoin = false;
   }
+    
     *myOutput = output;
 
   /*Remember some variables for next time*/
@@ -153,14 +159,9 @@ void PID::SetOutputLimits(int Min, int Max)
  * when the transition from manual to auto occurs, the controller is
  * automatically initialized
  ******************************************************************************/
-void PID::SetMode(int Mode)
+void PID::SetMode()
 {
-    bool newAuto = (Mode == AUTOMATIC);
-//    if(newAuto && !*AutoPoin) // we shouldn't need this since it should do it
-//    {  /*we just went from manual to auto*/   // at the beginning now
-//        PID::Initialize();
-//    }
-    *AutoPoin = newAuto;
+    *AutoPoin = !*AutoPoin;
 }
 
 /* Initialize()****************************************************************
@@ -169,10 +170,14 @@ void PID::SetMode(int Mode)
  ******************************************************************************/
 void PID::Initialize()
 {
-   outputSum = *myOutput;
+//   outputSum = *myOutput;
+//   if(ki == 0)
+//       outputSum = 0;
+   outputSum = 0;
+   lastResFindOutput = *myOutput;
    lastInput = *myInput;
-   if(outputSum > outMax) outputSum = outMax;
-   else if(outputSum < outMin) outputSum = outMin;
+//   if(outputSum > outMax) outputSum = outMax;
+//   else if(outputSum < outMin) outputSum = outMin;
 }
 
 /* SetControllerDirection(...)*************************************************

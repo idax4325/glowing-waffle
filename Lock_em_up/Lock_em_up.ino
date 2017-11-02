@@ -28,12 +28,12 @@ int inputcount = 0;
 uint16_t Input, InputRef, VerboseNum;
 uint16_t Output = 0, Setpoint = 27000;
 
-float HillHeight = 800; 
+float HillHeight = 1000; 
 
 ResFind myResFind(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &PIDAuto, &verbosemode, &HillHeight);
 
 // Choose the initial values for the PID constants
-int Kp=1, Ki=0, Kd=0;
+int Kp=3, Ki=0, Kd=0;
 
 PID myPID(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight, P_ON_E);
 
@@ -66,7 +66,7 @@ void setup() {
 
 // Set the direction of PID
 
-  myPID.SetControllerDirection(DIRECT);
+  myPID.SetControllerDirection(REVERSE);
 
 // Put the PID in automatic mode (as opposed to manual where it's turned off)
 
@@ -81,7 +81,10 @@ void loop() {
       case 'S': {
         Serial.write('R');
         Serial.write('S');
-//        if(!OnResonance) // add option to pause things. the run functions in PID and ResFind should have an optional input and otherwise switch current setting
+        if(!OnResonance) // add option to pause things. the run functions in PID and ResFind should have an optional input and otherwise switch current setting
+        myResFind.Running();
+        else
+        myPID.SetMode();
         
         break;
       }
@@ -90,11 +93,9 @@ void loop() {
         Serial.write('N');
         if(sendinput) {
           sendinput = false;
-          myResFind.Running(false);
         }
         else {
           sendinput = true;
-          myResFind.Running(true);
         }
         break;
       }

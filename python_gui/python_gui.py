@@ -13,13 +13,14 @@ savetofile = 1
 
 t_cur = [0] * 500
 V_cur = [0] * 500
+m = 0
 
 class PIDGUI:
     def __init__(self, master):
         self.master = master
         master.title("Lock Em Up Ultra Pro Version")
 
-        self.S_button = Checkbutton(master, text="Stop (S)", command=lambda:self.sendchar('S'))
+        self.S_button = Checkbutton(master, text="Run/Stop (S)", command=lambda:self.sendchar('S'))
         self.S_button.grid(row=1, column=0, sticky=W)
 
         self.N_button = Checkbutton(master, text="Send input (N)", command=lambda:self.sendchar('N'))
@@ -134,15 +135,20 @@ def read():
 
             if outt[1] == 'U':
                 try:
+                    global m
                     numret_t = unpack('H', outt[3] + outt[2])[0]
                     numret_V = unpack('H', outt[5] + outt[4])[0]
-                    t_list.append(numret_t)
+                    t_list.append(numret_t + 65536*m)
                     V_list.append(numret_V)
-                    t_cur.append(numret_t)
+                    t_cur.append(numret_t + 65536*m)
                     V_cur.append(numret_V)
                     if len(t_cur) > 500:
                         del t_cur[0]
                         del V_cur[0]
+                    if t_cur[-1] + 40000 < t_cur[-2]:
+                        t_cur[-1] += 65536
+                        t_list[-1] += 65536
+                        m += 1
                     del outt[0:6]
                 except IndexError:
                     print("Probably lost a data point")

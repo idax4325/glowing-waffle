@@ -14,7 +14,7 @@ class ResFind
   // functions **************************************************************************
     ResFind(uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*, bool*, bool*, float*);                       	// Constructor
     bool TakeMeThere();						   			// Starts finding the resonance and gives 1 when resonance has been found or if outputlimit has been reached
-	void Running(bool);						    // Start or stop TakeMeThere
+	void Running();						    // Start or stop TakeMeThere
     
     void SetLimits(int, int);                   // Set limits for the output in volts, min first
     //void SetOffStepsize(int);

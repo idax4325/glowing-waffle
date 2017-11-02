@@ -43,9 +43,9 @@ ResFind::ResFind(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t
 
 
 
-void ResFind::Running(bool run)
+void ResFind::Running()
 {
-	running = run; // An input of 1 means yes TakeMeThere should run, and 0 the opposite.
+    running = !running;
 }
 
  

@@ -20,7 +20,7 @@ class PID
     PID(uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*, int*, bool*,  // * constructor.  links the PID to the Input, Output, and
         bool*, float*, int);//   Setpoint.  Initial tuning parameters are also set here.
 
-    void SetMode(int Mode);               // * sets PID to either Manual (0) or Auto (non-0)
+    void SetMode();               // * sets PID to either Manual (0) or Auto (non-0)
 
     bool Compute();                       // * performs the PID calculation.  it should be
                                           //   called every time loop() cycles. ON/OFF and
@@ -72,6 +72,8 @@ class PID
     int *DirecPoin;
     bool *AutoPoin;
     float *HillPoin;
+    
+    int lastResFindOutput;
 
     int outputSum;
     int lastInput;
