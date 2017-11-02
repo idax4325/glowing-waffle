@@ -69,19 +69,22 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
  **********************************************************************************/
 bool PID::Compute()
 {
-if(!*AutoPoin) return false;
+    if(!*AutoPoin) {
+        lastAuto = false;
+        return false;
+    }
 if (*AutoPoin == !lastAuto) PID::Initialize();
-   if(*myInputRef > *HillPoin * 0.6)
-       offcounter++;
-   if(offcounter > 20)  // SHOULD BE 20 times in a row
-   {
-       offcounter = 0;
-       *DirecPoin = 2;
-       *AutoPoin = false;
-       lastAuto = *AutoPoin;
-       //*myOutput = 2047; // seems unnecessary because of the way ResFind ramps
-       return false;
-   }
+//   if(*myInputRef > *HillPoin * 0.6)      // TEMPORARILY DISABLED FOR TESTING PURPOSES
+//       offcounter++;
+//   if(offcounter > 20)  // SHOULD BE 20 times in a row
+//   {
+//       offcounter = 0;
+//       *DirecPoin = 2;
+//       *AutoPoin = false;
+//       lastAuto = *AutoPoin;
+//       //*myOutput = 2047; // seems unnecessary because of the way ResFind ramps
+//       return false;
+//   }
    
   lastAuto = *AutoPoin;
    

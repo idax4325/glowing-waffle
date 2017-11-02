@@ -19,7 +19,8 @@ ResFind::ResFind(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t
     HillPoin = HillAddr;
     VP = VerbAddr;
     
-    lasttimeoffset = 28000;
+    lasttimeoffset = 29000;
+    lasttimestd = 30000;    //should just be a high value so it doesn't "win"
     
 //    fin_roffset = 65000;
     
@@ -126,13 +127,17 @@ bool ResFind::TakeMeThere()
             
             int ind = ResFind::indexofSmallestElement(std_ar, oldversions);
             
-            offset = offset_ar[ind];
-            
             if(std_ar[ind] > 19000) {         // if there hasn't been made a new offset
                 offset = lasttimeoffset;        // use the old one
             }
-            
-            lasttimeoffset = offset;
+            else if(std_ar[ind] > lasttimestd * 2){
+                offset = lasttimeoffset;
+            }
+            else {
+                offset = offset_ar[ind];
+                lasttimestd = std[ind];
+                lasttimeoffset = offset;
+            }
             
             *mySetpoint = (uint16_t)offset;    // set the setpoint to the offset
             *AutoPoin = true;

@@ -46,6 +46,7 @@ class ResFind
     float offset, Pstd;
     float offset_ar [oldversions] = {};
     float lasttimeoffset;
+    float lasttimestd;
     float std_ar [oldversions] = {};
     //float roffset, rstd;
     //float roffset_ar [oldversions];
