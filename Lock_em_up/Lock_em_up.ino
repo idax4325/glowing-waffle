@@ -33,7 +33,7 @@ float HillHeight = 1000;
 ResFind myResFind(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &PIDAuto, &verbosemode, &HillHeight);
 
 // Choose the initial values for the PID constants
-int Kp=3, Ki=0, Kd=0;
+int Kp=0, Ki=0, Kd=0;
 
 PID myPID(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight, P_ON_E);
 
@@ -126,14 +126,14 @@ void loop() {
 
         uint16_t newvalue = msb << 8 | lsb;
         
-        Serial.write('R');
-        Serial.write('P');
-        serial_write(newvalue);
-        
         if(myPID.controllerDirection == DIRECT)
           myPID.kp = newvalue;  
         else
           myPID.kp = - newvalue;
+
+        Serial.write('R');
+        Serial.write('P');
+        serial_write(myPID.kp);
           
         break;
         
@@ -144,14 +144,14 @@ void loop() {
 
         uint16_t newvalue = msb << 8 | lsb; 
                 
-        Serial.write('R');
-        Serial.write('I');
-        serial_write(newvalue);
-
         if(myPID.controllerDirection == DIRECT)
           myPID.ki = newvalue;  
         else
           myPID.ki = - newvalue;
+
+        Serial.write('R');
+        Serial.write('I');
+        serial_write(myPID.ki);
           
         break;
       }
@@ -161,14 +161,14 @@ void loop() {
 
         uint16_t newvalue = msb << 8 | lsb;
 
-        Serial.write('R');
-        Serial.write('D');
-        serial_write(newvalue);
-
         if(myPID.controllerDirection == DIRECT)
           myPID.kd = newvalue;  
         else
           myPID.kd = - newvalue;
+
+        Serial.write('R');
+        Serial.write('D');
+        serial_write(myPID.kd);
           
         break;
       }

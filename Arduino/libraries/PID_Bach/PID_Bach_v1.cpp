@@ -19,7 +19,7 @@
  *    reliable defaults, so we need to have the user set them.
  ***************************************************************************/
 PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoint, uint16_t* VerboseNum,
-         int* DirecAddr, bool* AutoAddr, bool* VerbAddr, float* HillAddr, int POn)
+         int* DirecAddr, bool* AutoAddr, bool* VerbAddr, float* HillAddr)
 {
     myOutput = Output;
     myInput = Input;
@@ -31,14 +31,11 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     HillPoin = HillAddr;
     VP = VerbAddr;
     
+    controllerDirection = DIRECT;
     lastAuto = false;
 
-    PID::SetOutputLimits(0, 3000);				//default output limit corresponds to
-												//the arduino pwm limits
+    PID::SetOutputLimits(0, 3000);
     offcounter = 0;
-    
-    pOn = POn;
-    pOnE = POn == P_ON_E;
     
     kp = 1;
     ki = 0;
@@ -86,42 +83,39 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
 //       return false;
 //   }
    
-  lastAuto = *AutoPoin;
+  lastAuto = true;
    
   /*Compute all the working error variables*/
   uint16_t input = *myInput;
   uint16_t error = *mySetpoint - input;
   uint16_t dInput = (input - lastInput);
+  
+  error = error >> 10;
+  dInput = dInput >> 10;
+  
   outputSum += (ki * error);
-
-  /*Add Proportional on Measurement, if P_ON_M is specified*/
-  if(!pOnE) outputSum-= kp * dInput;
 
   if(outputSum > outMax) outputSum= outMax;
   else if(outputSum < outMin) outputSum= outMin;
 
-  /*Add Proportional on Error, if P_ON_E is specified*/
   uint16_t output;
-  if(pOnE) output = kp * error;
-  else output = 0;
+  output = kp * error;
 
   /*Compute Rest of PID Output*/
   output += outputSum - kd * dInput;
     
-  output = output >> 8; // Convert from 16 to 12 bits = >> 4 (but that wasn't enough)
-
   output += lastResFindOutput;
     
   if(output > outMax)
   {
       output = outMax; // 80 % of outmax
-      //*DirecPoin = 2; // Backwards
+      *DirecPoin = 2; // Backwards
       //*AutoPoin = false;
   }
   else if(output < outMin)
   {
       output = outMin; // 20 % of outmax
-      //*DirecPoin = 4; // Forwards
+      *DirecPoin = 4; // Forwards
       //*AutoPoin = false;
   }
     
@@ -174,13 +168,11 @@ void PID::SetMode()
 void PID::Initialize()
 {
 //   outputSum = *myOutput;
-//   if(ki == 0)
-//       outputSum = 0;
+//   if(outputSum > outMax) outputSum = outMax;
+//   else if(outputSum < outMin) outputSum = outMin;
    outputSum = 0;
    lastResFindOutput = *myOutput;
    lastInput = *myInput;
-//   if(outputSum > outMax) outputSum = outMax;
-//   else if(outputSum < outMin) outputSum = outMin;
 }
 
 /* SetControllerDirection(...)*************************************************
@@ -191,7 +183,7 @@ void PID::Initialize()
  ******************************************************************************/
 void PID::SetControllerDirection(int Direction)
 {
-   if(*AutoPoin && Direction !=controllerDirection)
+   if(Direction !=controllerDirection) // deleted requirement for *AutoPoin = true
    {
       kp = (0 - kp);
       ki = (0 - ki);

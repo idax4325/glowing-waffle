@@ -135,7 +135,7 @@ bool ResFind::TakeMeThere()
             }
             else {
                 offset = offset_ar[ind];
-                lasttimestd = std[ind];
+                lasttimestd = std_ar[ind];
                 lasttimeoffset = offset;
             }
             
