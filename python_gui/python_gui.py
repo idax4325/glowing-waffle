@@ -74,7 +74,7 @@ class PIDGUI:
             print("New PID values sent to Teensy")
             return True
         except ValueError:
-            print("You can only write integers in the textboxes. Write only ints and try again")
+            print("You can only write integers under 30K in the textboxes. Write only that and try again")
             return False
 
     def send(self, char, num):

@@ -35,9 +35,9 @@ ResFind myResFind(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &PIDAuto, 
 // Choose the initial values for the PID constants
 int Kp=0, Ki=0, Kd=0;
 
-PID myPID(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight, P_ON_E);
+PID myPID(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight);
 
-int OutputMin = 150, OutputMax = 3895;
+int OutputMin = 150, OutputMax = 4045;
 
 void setup() {
 
@@ -60,7 +60,7 @@ void setup() {
 
 // Set the PID constants
 
-  myPID.kp = Kp;
+  myPID.kp = Kp;    // the sign isn't checked here because it's set just after and we don't wanna 
   myPID.ki = Ki;
   myPID.kd = Kd;
 

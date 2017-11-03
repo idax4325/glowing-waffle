@@ -34,9 +34,9 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     controllerDirection = DIRECT;
     lastAuto = false;
 
+    sf = 12;
     PID::SetOutputLimits(0, 3000);
     offcounter = 0;
-    
     kp = 1;
     ki = 0;
     kd = 0;
@@ -87,22 +87,28 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
    
   /*Compute all the working error variables*/
   uint16_t input = *myInput;
-  uint16_t error = *mySetpoint - input;
-  uint16_t dInput = (input - lastInput);
+  int16_t error = *mySetpoint - input;
+  int16_t dInput = (input - lastInput);
   
-  error = error >> 10;
-  dInput = dInput >> 10;
+  int32_t tempOS = ki * error;  // we need a 4 byte int
+    
+  tempOS = tempOS >> sf;
   
-  outputSum += (ki * error);
+  outputSum += tempOS;
 
   if(outputSum > outMax) outputSum= outMax;
   else if(outputSum < outMin) outputSum= outMin;
 
   uint16_t output;
-  output = kp * error;
+    
 
   /*Compute Rest of PID Output*/
-  output += outputSum - kd * dInput;
+    
+  int32_t tempOP = kp * error - kd * dInput;
+    
+  tempOP = tempOP >> sf;
+    
+  output = outputSum + tempOP;
     
   output += lastResFindOutput;
     
