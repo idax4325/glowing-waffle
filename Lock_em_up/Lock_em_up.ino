@@ -33,7 +33,7 @@ float HillHeight = 1000;
 ResFind myResFind(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &PIDAuto, &verbosemode, &HillHeight);
 
 // Choose the initial values for the PID constants
-int Kp=0, Ki=0, Kd=0;
+int Kp=60, Ki=30, Kd=0;
 
 PID myPID(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight);
 
@@ -66,7 +66,7 @@ void setup() {
 
 // Set the direction of PID
 
-  myPID.SetControllerDirection(REVERSE);
+//  myPID.SetControllerDirection(REVERSE);
 
 // Put the PID in automatic mode (as opposed to manual where it's turned off)
 
@@ -126,10 +126,10 @@ void loop() {
 
         uint16_t newvalue = msb << 8 | lsb;
         
-        if(myPID.controllerDirection == DIRECT)
-          myPID.kp = newvalue;  
-        else
-          myPID.kp = - newvalue;
+//        if(myPID.controllerDirection == DIRECT)
+        myPID.kp = newvalue;  
+//        else
+//          myPID.kp = - newvalue;
 
         Serial.write('R');
         Serial.write('P');
@@ -144,10 +144,10 @@ void loop() {
 
         uint16_t newvalue = msb << 8 | lsb; 
                 
-        if(myPID.controllerDirection == DIRECT)
-          myPID.ki = newvalue;  
-        else
-          myPID.ki = - newvalue;
+//        if(myPID.controllerDirection == DIRECT)
+        myPID.ki = newvalue;  
+//        else
+//          myPID.ki = - newvalue;
 
         Serial.write('R');
         Serial.write('I');
@@ -161,10 +161,10 @@ void loop() {
 
         uint16_t newvalue = msb << 8 | lsb;
 
-        if(myPID.controllerDirection == DIRECT)
-          myPID.kd = newvalue;  
-        else
-          myPID.kd = - newvalue;
+//        if(myPID.controllerDirection == DIRECT)
+        myPID.kd = newvalue;  
+//        else
+//          myPID.kd = - newvalue;
 
         Serial.write('R');
         Serial.write('D');

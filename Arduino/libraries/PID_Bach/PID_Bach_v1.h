@@ -36,7 +36,7 @@ class PID
   //available but not commonly used functions ********************************************************
 	  
 
-	void SetControllerDirection(int);	  // * Sets the Direction, or "Action" of the controller. DIRECT
+	//void SetControllerDirection(int);	  // * Sets the Direction, or "Action" of the controller. DIRECT
 										  //   means the output will increase when error is positive. REVERSE
 										  //   means the opposite.  it's very unlikely that this will be needed
 										  //   once it is set in the constructor.
@@ -51,10 +51,10 @@ class PID
     
   // Public variables ****************************************************************
     
-    int kp;                  // * (P)roportional Tuning Parameter
-    int ki;                  // * (I)ntegral Tuning Parameter
-    int kd;                  // * (D)erivative Tuning Parameter
-    int controllerDirection;
+    uint16_t kp;                  // * (P)roportional Tuning Parameter
+    uint16_t ki;                  // * (I)ntegral Tuning Parameter
+    uint16_t kd;                  // * (D)erivative Tuning Parameter
+    //int controllerDirection;
     int sf;
     
     // Private variables ****************************************************************

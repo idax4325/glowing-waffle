@@ -31,7 +31,7 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     HillPoin = HillAddr;
     VP = VerbAddr;
     
-    controllerDirection = DIRECT;
+    //controllerDirection = DIRECT;
     lastAuto = false;
 
     sf = 12;
@@ -41,7 +41,7 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     ki = 0;
     kd = 0;
     
-    PID::SetControllerDirection(DIRECT);
+    //PID::SetControllerDirection(DIRECT);
     
 }
 
@@ -90,7 +90,7 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
   int16_t error = *mySetpoint - input;
   int16_t dInput = (input - lastInput);
   
-  int32_t tempOS = ki * error;  // we need a 4 byte int
+  uint32_t tempOS = ki * error;  // we need a 4 byte int
     
   tempOS = tempOS >> sf;
   
@@ -99,18 +99,16 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
   if(outputSum > outMax) outputSum= outMax;
   else if(outputSum < outMin) outputSum= outMin;
 
-  uint16_t output;
+  uint16_t output = lastResFindOutput;
     
 
   /*Compute Rest of PID Output*/
     
-  int32_t tempOP = kp * error - kd * dInput;
+  uint32_t tempOP = kp * error - kd * dInput;
     
   tempOP = tempOP >> sf;
     
   output = outputSum + tempOP;
-    
-  output += lastResFindOutput;
     
   if(output > outMax)
   {
@@ -187,16 +185,17 @@ void PID::Initialize()
  * know which one, because otherwise we may increase the output when we should
  * be decreasing.  This is called from the constructor.
  ******************************************************************************/
-void PID::SetControllerDirection(int Direction)
-{
-   if(Direction !=controllerDirection) // deleted requirement for *AutoPoin = true
-   {
-      kp = (0 - kp);
-      ki = (0 - ki);
-      kd = (0 - kd);
-   }
-   controllerDirection = Direction;
-}
+//void PID::SetControllerDirection(int Direction) DOESN'T WORK ANYMORE BECAUSE
+//                                                THERE'S NO SIGN ON PID CONST
+//{
+//   if(Direction !=controllerDirection) // deleted requirement for *AutoPoin = true
+//   {
+//      kp = (0 - kp);
+//      ki = (0 - ki);
+//      kd = (0 - kd);
+//   }
+//   controllerDirection = Direction;
+//}
 
 /* Status Funcions*************************************************************
  * Just because you set the Kp=-1 doesn't mean it actually happened.  these
@@ -205,5 +204,5 @@ void PID::SetControllerDirection(int Direction)
  ******************************************************************************/
 
 int PID::GetMode(){ return  *AutoPoin ? AUTOMATIC : MANUAL;}
-int PID::GetDirection(){ return controllerDirection;}
+//int PID::GetDirection(){ return controllerDirection;}
 
