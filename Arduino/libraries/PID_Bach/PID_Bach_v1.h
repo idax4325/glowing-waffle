@@ -45,8 +45,8 @@ class PID
 										  
   //Display functions ****************************************************************
     
-	int GetMode();						  //  inside the PID.
-	int GetDirection();					  //
+//	int GetMode();						  //  inside the PID.
+//	int GetDirection();					  //
     
     
   // Public variables ****************************************************************
@@ -76,10 +76,9 @@ class PID
     
     int lastResFindOutput;
 
-    int outputSum;
-    int lastInput;
+    int16_t outputSum;
+    uint16_t lastInput;
 
-	unsigned long SampleTime;
 	double outMin, outMax;
 	bool pOnE;
     bool lastAuto;

@@ -33,6 +33,7 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     
     //controllerDirection = DIRECT;
     lastAuto = false;
+    outputSum = 0;
 
     sf = 12;
     PID::SetOutputLimits(0, 3000);
@@ -68,6 +69,7 @@ bool PID::Compute()
 {
     if(!*AutoPoin) {
         lastAuto = false;
+        *DirecPoin = 2;
         return false;
     }
 if (*AutoPoin == !lastAuto) PID::Initialize();
@@ -86,40 +88,46 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
   lastAuto = true;
    
   /*Compute all the working error variables*/
-  uint16_t input = *myInput;
-  int16_t error = *mySetpoint - input;
-  int16_t dInput = (input - lastInput);
+  uint16_t input = *myInput;            // can't overflow because read res is 16 bit too
+  int16_t error = *mySetpoint - input;  // shouldn't overflow because the error would need to
+                                        // be over 32768 or under -32768
+  int16_t dInput = (input - lastInput); // shouldn't overflow for same reason as error
   
-  uint32_t tempOS = ki * error;  // we need a 4 byte int
+  int32_t tempOS = ki * error;  // we need a 4 byte int because we're multiplying a 15 bit res error
+                                // and will only make it smaller after multiplication. Will be
+                                // negative sometimes since error can be negative. Thus it's signed.
     
-  tempOS = tempOS >> sf;
+  tempOS = tempOS >> sf;         // we're bitshifting to get the output down to a reasonable size
   
-  outputSum += tempOS;
+  outputSum += tempOS;           // and then adding the decreased value to the 2 byte int outputSum
 
   if(outputSum > outMax) outputSum= outMax;
   else if(outputSum < outMin) outputSum= outMin;
 
-  uint16_t output = lastResFindOutput;
+  int16_t output = lastResFindOutput;   // this needs 12 bit unsigned since that's the output range
+                                        // I made it signed since then going a little too low will make
+                                        // it negative and thus bring it to the min instead of it over-
+                                        // flowing and going to max
     
 
   /*Compute Rest of PID Output*/
     
-  uint32_t tempOP = kp * error - kd * dInput;
+  int32_t tempOP = kp * error - kd * dInput;    // this is basically the same as tempOS
     
   tempOP = tempOP >> sf;
     
-  output = outputSum + tempOP;
+  output += outputSum + tempOP;
     
   if(output > outMax)
   {
       output = outMax; // 80 % of outmax
-      *DirecPoin = 2; // Backwards
+      //*DirecPoin = 2; // Backwards
       //*AutoPoin = false;
   }
   else if(output < outMin)
   {
       output = outMin; // 20 % of outmax
-      *DirecPoin = 4; // Forwards
+      //*DirecPoin = 4; // Forwards
       //*AutoPoin = false;
   }
     
@@ -203,6 +211,6 @@ void PID::Initialize()
  * purposes.  this are the functions the PID Front-end uses for example
  ******************************************************************************/
 
-int PID::GetMode(){ return  *AutoPoin ? AUTOMATIC : MANUAL;}
+//int PID::GetMode(){ return  *AutoPoin ? AUTOMATIC : MANUAL;}
 //int PID::GetDirection(){ return controllerDirection;}
 
