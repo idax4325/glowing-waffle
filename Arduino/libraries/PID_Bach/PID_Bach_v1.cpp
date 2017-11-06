@@ -32,6 +32,7 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     VP = VerbAddr;
     
     //controllerDirection = DIRECT;
+    PIDforward = true;
     lastAuto = false;
     outputSum = 0;
 
@@ -115,8 +116,14 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
   int32_t tempOP = kp * error - kd * dInput;    // this is basically the same as tempOS
     
   tempOP = tempOP >> sf;
+
+  if(PIDforward) {
     
-  output += outputSum + tempOP;
+      output += outputSum + tempOP;
+  }
+  else {
+        output -= outputSum + tempOP;
+  }
     
   if(output > outMax)
   {

@@ -56,6 +56,7 @@ class PID
     uint16_t kd;                  // * (D)erivative Tuning Parameter
     //int controllerDirection;
     int sf;
+    bool PIDforward;
     
     // Private variables ****************************************************************
     

@@ -33,7 +33,7 @@ float HillHeight = 1000;
 ResFind myResFind(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &PIDAuto, &verbosemode, &HillHeight);
 
 // Choose the initial values for the PID constants
-int Kp=60, Ki=30, Kd=0;
+int Kp=6, Ki=3, Kd=0;
 
 PID myPID(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight);
 
@@ -66,7 +66,7 @@ void setup() {
 
 // Set the direction of PID
 
-//  myPID.SetControllerDirection(REVERSE);
+  myPID.PIDforward = true;
 
 // Put the PID in automatic mode (as opposed to manual where it's turned off)
 
