@@ -51,11 +51,9 @@ class PID
     
   // Public variables ****************************************************************
     
-    uint16_t kp;                  // * (P)roportional Tuning Parameter
-    uint16_t ki;                  // * (I)ntegral Tuning Parameter
-    uint16_t kd;                  // * (D)erivative Tuning Parameter
-    //int controllerDirection;
-    int sf;
+    float kp;                  // * (P)roportional Tuning Parameter
+    float ki;                  // * (I)ntegral Tuning Parameter
+    float kd;                  // * (D)erivative Tuning Parameter
     bool PIDforward;
     
     // Private variables ****************************************************************

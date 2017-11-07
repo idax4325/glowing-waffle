@@ -1,7 +1,7 @@
 from Tkinter import *
 import serial
 #import time
-from struct import unpack
+from struct import unpack, pack
 #import numpy as np
 import matplotlib
 matplotlib.use("TkAgg")
@@ -74,14 +74,16 @@ class PIDGUI:
             print("New PID values sent to Teensy")
             return True
         except ValueError:
-            print("You can only write integers under 30K in the textboxes. Write only that and try again")
+            print("You can only write ints in the textboxes. Write only those and try again")
             return False
 
     def send(self, char, num):
 
-        p1 = (num // 256 ** 1) % 256
-        p2 = (num // 256 ** 0) % 256
-        ser.write(bytearray([char, p1, p2]))
+        # p1 = (num // 256 ** 1) % 256
+        # p2 = (num // 256 ** 0) % 256
+        fnum = float(num)*10**-5
+        fasbytearray = pack('>f', fnum)
+        ser.write(char + fasbytearray)
 
     def sendchar(self, char):
         ser.write(char)
@@ -118,11 +120,11 @@ def read():
 
         if outt[0] == 'R':
 
-            if outt[1] == 'P' or outt[1] == 'I' or outt[1] == 'D' or outt[1] == 'V':
+            if outt[1] == 'P' or outt[1] == 'I' or outt[1] == 'D':
                 try:
-                    numret = unpack('H', outt[3] + outt[2])[0]
+                    numret = unpack('>f', outt[2] + outt[3] + outt[4] + outt[5])[0]
                     print("Teensy says: " + outt[0] + outt[1] + str(numret))
-                    del outt[0:4]
+                    del outt[0:6]
                 except IndexError:
                     print('Probably lost a message')
                     outt = []
@@ -131,13 +133,19 @@ def read():
                 print("Teensy says: " + outt[0] + outt[1])
                 del outt[0:2]
 
+            elif outt[1] == 'V':
+                numret = unpack('>H', outt[2] + outt[3])[0]
+                print("Teensy says: " + outt[0] + outt[1] + str(numret))
+                del outt[0:4]
+
+
         elif outt[0] == 'T':
 
             if outt[1] == 'U':
                 try:
                     global m
-                    numret_t = unpack('H', outt[3] + outt[2])[0]
-                    numret_V = unpack('H', outt[5] + outt[4])[0]
+                    numret_t = unpack('>H', outt[2] + outt[3])[0]
+                    numret_V = unpack('>H', outt[4] + outt[5])[0]
                     t_list.append(numret_t + 65536*m)
                     V_list.append(numret_V)
                     t_cur.append(numret_t + 65536*m)

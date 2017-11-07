@@ -36,10 +36,9 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     lastAuto = false;
     outputSum = 0;
 
-    sf = 12;
     PID::SetOutputLimits(0, 3000);
     offcounter = 0;
-    kp = 1;
+    kp = 0.0001;
     ki = 0;
     kd = 0;
     
@@ -93,14 +92,8 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
   int16_t error = *mySetpoint - input;  // shouldn't overflow because the error would need to
                                         // be over 32768 or under -32768
   int16_t dInput = (input - lastInput); // shouldn't overflow for same reason as error
-  
-  int32_t tempOS = ki * error;  // we need a 4 byte int because we're multiplying a 15 bit res error
-                                // and will only make it smaller after multiplication. Will be
-                                // negative sometimes since error can be negative. Thus it's signed.
     
-  tempOS = tempOS >> sf;         // we're bitshifting to get the output down to a reasonable size
-  
-  outputSum += tempOS;           // and then adding the decreased value to the 2 byte int outputSum
+  outputSum += ki * error;
 
   if(outputSum > outMax) outputSum= outMax;
   else if(outputSum < outMin) outputSum= outMin;
@@ -113,16 +106,14 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
 
   /*Compute Rest of PID Output*/
     
-  int32_t tempOP = kp * error - kd * dInput;    // this is basically the same as tempOS
-    
-  tempOP = tempOP >> sf;
+  int16_t PandD = kp * error - kd * dInput;    // this is basically the same as tempOS
 
   if(PIDforward) {
     
-      output += outputSum + tempOP;
+      output += outputSum + PandD;
   }
   else {
-        output -= outputSum + tempOP;
+        output -= outputSum + PandD;
   }
     
   if(output > outMax)

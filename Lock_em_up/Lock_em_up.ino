@@ -116,59 +116,44 @@ void loop() {
         else
           verbosemode = true;
         VerboseNum = Setpoint;
-        serial_write(VerboseNum);
+        serial_write_i(VerboseNum);
           
         break;
       }
       case 'P': {   // change value of Kp 
-        byte msb = Serial.read();
-        byte lsb = Serial.read();
 
-        uint16_t newvalue = msb << 8 | lsb;
+        float newvalue = serial_read_f();
         
-//        if(myPID.controllerDirection == DIRECT)
         myPID.kp = newvalue;  
-//        else
-//          myPID.kp = - newvalue;
 
         Serial.write('R');
         Serial.write('P');
-        serial_write(myPID.kp);
+        serial_write_f(myPID.kp);
           
         break;
         
       }
       case 'I': {   // change value of Ki
-        byte msb = Serial.read();
-        byte lsb = Serial.read();
-
-        uint16_t newvalue = msb << 8 | lsb; 
-                
-//        if(myPID.controllerDirection == DIRECT)
+        
+        float newvalue = serial_read_f();
+               
         myPID.ki = newvalue;  
-//        else
-//          myPID.ki = - newvalue;
 
         Serial.write('R');
         Serial.write('I');
-        serial_write(myPID.ki);
+        serial_write_f(myPID.ki);
           
         break;
       }
       case'D': {    // change value of Kd
-        byte msb = Serial.read();
-        byte lsb = Serial.read();
-
-        uint16_t newvalue = msb << 8 | lsb;
-
-//        if(myPID.controllerDirection == DIRECT)
+        
+        float newvalue = serial_read_f();
+               
         myPID.kd = newvalue;  
-//        else
-//          myPID.kd = - newvalue;
 
         Serial.write('R');
         Serial.write('D');
-        serial_write(myPID.kd);
+        serial_write_f(myPID.kd);
           
         break;
       }
@@ -200,8 +185,8 @@ void loop() {
       Serial.write('T');
       Serial.write('U');
       uint16_t timenow = (uint16_t) millis();
-      serial_write(timenow);
-      serial_write(Input);
+      serial_write_i(timenow);
+      serial_write_i(Input);
       sendcount = 0;
       Serial.send_now(); // adding this makes sure that data packages aren't divided on two sends
     }
@@ -215,8 +200,8 @@ void loop() {
       Serial.write('T');
       Serial.write('U');
       uint16_t timenow = (uint16_t) millis();
-      serial_write(timenow);
-      serial_write(Output);
+      serial_write_i(timenow);
+      serial_write_i(Output);
       sendcount = 0;
       Serial.send_now(); // adding this makes sure that data packages aren't divided on two sends
     }
@@ -229,7 +214,37 @@ void loop() {
 
 }
 
-void serial_write(uint16_t data){
-  Serial.write((data>>8) & 255); // msb
-  Serial.write(data & 255); // lsb
+union intUnion {  
+    int i;  
+    byte bytes[2];  
+};
+
+union floatUnion {  
+    float f;  
+    byte bytes[4];  
+};
+
+void serial_write_i(int data){
+  intUnion iU;
+  iU.i = data;
+  Serial.write(iU.bytes[0]); // msb
+  Serial.write(iU.bytes[1]); // lsb
+}
+
+float serial_read_f(){    // if used with a device which is in big-endian this order should be reversed
+  floatUnion fU;
+  fU.bytes[3] = Serial.read(); // msb1 (the teensy is little-endian and we're sending big-endian from python, thus order is in reverse)
+  fU.bytes[2] = Serial.read(); // b2
+  fU.bytes[1] = Serial.read(); // b3
+  fU.bytes[0] = Serial.read(); // lsb4
+  return fU.f;
+}
+
+void serial_write_f(float data){
+  floatUnion fU;
+  fU.f = data;
+  Serial.write(fU.bytes[3]); // msb1
+  Serial.write(fU.bytes[2]); // b2
+  Serial.write(fU.bytes[1]); // b3
+  Serial.write(fU.bytes[0]); // lsb4
 }
