@@ -22,10 +22,11 @@ class ResFind
     
     int indexofSmallestElement(float [], int);
     
-     // The following variables are public so that they can be changed by writing myResFind.var = value
+    // variables ************************************************************************
     
     int Direction;
     int RampSlow;
+    bool allowSPchange;
     
   private:
     

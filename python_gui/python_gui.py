@@ -21,40 +21,55 @@ class PIDGUI:
         master.title("Lock Em Up Ultra Pro Version")
 
         self.S_button = Checkbutton(master, text="Run/Stop (S)", command=lambda:self.sendchar('S'))
-        self.S_button.grid(row=1, column=0, sticky=W)
+        self.S_button.grid(row=1, column=0, columnspan=3, sticky=W)
 
         self.N_button = Checkbutton(master, text="Send input (N)", command=lambda:self.sendchar('N'))
-        self.N_button.grid(row=1, column=1, sticky=W)
+        self.N_button.grid(row=1, column=3, columnspan=3, sticky=W)
+
+        self.E_button = Checkbutton(master, text="Send input ref (E)", command=lambda: self.sendchar('E'))
+        self.E_button.grid(row=1, column=6, columnspan=3, sticky=W)
 
         self.O_button = Checkbutton(master, text="Send output (O)", command=lambda:self.sendchar('O'))
-        self.O_button.grid(row=1, column=2, sticky=W)
+        self.O_button.grid(row=1, column=9, columnspan=3, sticky=W)
 
         self.V_button = Checkbutton(master, text="Verbose mode (V)", command=lambda:self.sendchar('V'))
-        self.V_button.grid(row=1, column=3, sticky=W)
+        self.V_button.grid(row=1, column=11, columnspan=3, sticky=W)
 
         self.P_label = Label(master, text="P:")
-        self.P_label.grid(row=1, column=4, sticky=W)
+        self.P_label.grid(row=2, column=0, sticky=W)
 
         self.P_entry = Entry(master, width=6)
-        self.P_entry.grid(row=1, column=5, sticky=W)
+        self.P_entry.grid(row=2, column=1, sticky=W)
 
         self.I_label = Label(master, text="I:")
-        self.I_label.grid(row=1, column=6, sticky=W)
+        self.I_label.grid(row=2, column=2, sticky=W)
 
         self.I_entry = Entry(master, width=6)
-        self.I_entry.grid(row=1, column=7, sticky=W)
+        self.I_entry.grid(row=2, column=3, sticky=W)
 
         self.D_label = Label(master, text="D:")
-        self.D_label.grid(row=1, column=8, sticky=W)
+        self.D_label.grid(row=2, column=4, sticky=W)
 
         self.D_entry = Entry(master, width=6)
-        self.D_entry.grid(row=1, column=9, sticky=W)
+        self.D_entry.grid(row=2, column=5, sticky=W)
 
-        self.Send_button = Button(master, text="Send", command=self.sendall)
-        self.Send_button.grid(row=1, column=10, sticky=W)
+        self.Send_button = Button(master, text="Send PID", command=self.sendall)
+        self.Send_button.grid(row=2, column=7, sticky=W)
+
+        self.SP_label = Label(master, text="Setpoint:")
+        self.SP_label.grid(row=2, column=8, sticky=W)
+
+        self.SP_entry = Entry(master, width=6)
+        self.SP_entry.grid(row=2, column=9, sticky=W)
+
+        self.SP_Send_button = Button(master, text="Send SP", command=self.sendSP)
+        self.SP_Send_button.grid(row=2, column=10, sticky=W)
+
+        self.SP_Get_button = Button(master, text="Get SP", command=self.getSP)
+        self.SP_Get_button.grid(row=2, column=11, sticky=W)
 
         self.close_button = Button(master, text="Close", command=self.quit)
-        self.close_button.grid(row=1, column=11, sticky=W)
+        self.close_button.grid(row=2, column=12, sticky=W)
 
         self.fig = plt.figure(1)
         plt.ion()
@@ -63,27 +78,49 @@ class PIDGUI:
         self.canvas = FigureCanvasTkAgg(self.fig, master=root)
         self.plot_widget = self.canvas.get_tk_widget()
 
-        self.plot_widget.grid(row=0, column=0, columnspan=10)
+        self.plot_widget.grid(row=0, column=0, columnspan=13)
 
     def sendall(self):
 
         try:
-            self.send("P", int(self.P_entry.get()))
-            self.send("I", int(self.I_entry.get()))
-            self.send("D", int(self.D_entry.get()))
+            self.send_f("P", int(self.P_entry.get()))
+            self.send_f("I", int(self.I_entry.get()))
+            self.send_f("D", int(self.D_entry.get()))
             print("New PID values sent to Teensy")
             return True
         except ValueError:
             print("You can only write ints in the textboxes. Write only those and try again")
             return False
 
-    def send(self, char, num):
+    def sendSP(self):
 
-        # p1 = (num // 256 ** 1) % 256
-        # p2 = (num // 256 ** 0) % 256
+        try:
+            num = int(self.SP_entry.get())
+            p1 = (num // 256 ** 1) % 256
+            p2 = (num // 256 ** 0) % 256
+            ser.write(bytearray(["Z", "S", p1, p2]))
+            print("New Setpoint sent to Teensy")
+            return True
+        except ValueError:
+            print("You can only write an int in the textbox. Write only that and try again")
+            return False
+
+    def getSP(self):
+
+        ser.write(bytearray(["Z","G"]))
+        print("Setpoint requested from Teensy")
+
+    def send_f(self, char, num):
+
         fnum = float(num)*10**-5
         fasbytearray = pack('>f', fnum)
         ser.write(char + fasbytearray)
+
+    def send_i(self, char, num):
+
+        p1 = (num // 256 ** 1) % 256
+        p2 = (num // 256 ** 0) % 256
+        ser.write(bytearray([char, p1,p2]))
 
     def sendchar(self, char):
         ser.write(char)
@@ -129,14 +166,18 @@ def read():
                     print('Probably lost a message')
                     outt = []
 
-            elif outt[1] == 'O' or outt[1] == 'S' or outt[1] == 'N': #it seems like it doesn't print N the first time. bleh
+            elif outt[1] == 'O' or outt[1] == 'S' or outt[1] == 'N' or outt[1] == 'E':
                 print("Teensy says: " + outt[0] + outt[1])
                 del outt[0:2]
 
-            elif outt[1] == 'V':
-                numret = unpack('>H', outt[2] + outt[3])[0]
-                print("Teensy says: " + outt[0] + outt[1] + str(numret))
-                del outt[0:4]
+            elif outt[1] == 'Z':
+                try:
+                    numret = unpack('>H', outt[2] + outt[3])[0]
+                    print("Teensy says: " + outt[0] + outt[1] + str(numret))
+                    del outt[0:4]
+                except IndexError:
+                    print("Probably lost a data point")
+                    outt = []
 
 
         elif outt[0] == 'T':
@@ -161,6 +202,22 @@ def read():
                 except IndexError:
                     print("Probably lost a data point")
                     outt = []
+
+            elif outt[1] == 'Z':
+                try:
+                    numret = unpack('>H', outt[2] + outt[3])[0]
+                    my_gui.SP_entry.delete(0,END)
+                    my_gui.SP_entry.insert(0, str(numret))
+                    print("Teensy says: " + outt[0] + outt[1] + str(numret))
+                    del outt[0:4]
+                except IndexError:
+                    print("Probably lost a data point")
+                    outt = []
+
+            elif outt[1] == 'V':
+                numret = unpack('>H', outt[2] + outt[3])[0]
+                print("Teensy says: " + outt[0] + outt[1] + str(numret))
+                del outt[0:4]
 
     global updatecount
 

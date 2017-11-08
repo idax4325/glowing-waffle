@@ -16,7 +16,7 @@ const int led = LED_BUILTIN;
 
 char inChar;
 
-bool sendinput, sendoutput;
+bool sendinput, sendinputref, sendoutput;
 int sendcount = 0;
 
 bool OnResonance = false;
@@ -33,7 +33,7 @@ float HillHeight = 1000;
 ResFind myResFind(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &PIDAuto, &verbosemode, &HillHeight);
 
 // Choose the initial values for the PID constants
-int Kp=6, Ki=3, Kd=0;
+float Kp=0, Ki=0, Kd=0;
 
 PID myPID(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight);
 
@@ -60,7 +60,7 @@ void setup() {
 
 // Set the PID constants
 
-  myPID.kp = Kp;    // the sign isn't checked here because it's set just after and we don't wanna 
+  myPID.kp = Kp;   
   myPID.ki = Ki;
   myPID.kd = Kd;
 
@@ -81,7 +81,7 @@ void loop() {
       case 'S': {
         Serial.write('R');
         Serial.write('S');
-        if(!OnResonance) // add option to pause things. the run functions in PID and ResFind should have an optional input and otherwise switch current setting
+        if(!OnResonance) 
         myResFind.Running();
         else
         myPID.SetMode();
@@ -99,6 +99,17 @@ void loop() {
         }
         break;
       }
+      case 'E': {   // toggle whether input is sent
+        Serial.write('R');
+        Serial.write('E');
+        if(sendinputref) {
+          sendinputref = false;
+        }
+        else {
+          sendinputref = true;
+        }
+        break;
+      }
       case 'O': {   // toggle whether output is sent
         Serial.write('R');
         Serial.write('O');
@@ -109,13 +120,12 @@ void loop() {
         break;
       }
       case 'V': { // toggle verbose mode
-        Serial.write('R');
+        Serial.write('T');
         Serial.write('V');
         if(verbosemode)
           verbosemode = false;
         else
           verbosemode = true;
-        VerboseNum = Setpoint;
         serial_write_i(VerboseNum);
           
         break;
@@ -157,6 +167,27 @@ void loop() {
           
         break;
       }
+      case'Z': {
+        char inchar2 = Serial.read();
+        switch(inchar2) {
+          case'S': {            // set SP sent by python gui and send it as well to ensure correct transfer
+            myResFind.allowSPchange = false;  // ResFind shouldn't change the Setpoint if we've chosen a value
+            uint16_t newSP = serial_read_i();
+            Setpoint = newSP;
+            Serial.write('R');
+            Serial.write('Z');
+            serial_write_i(Setpoint);
+            break;
+          }
+          case'G': {            // give SP to python gui
+            Serial.write('T');
+            Serial.write('Z');
+            serial_write_i(Setpoint);
+            break;
+          break;
+          }
+        }
+      }
     }
   }
 
@@ -188,6 +219,21 @@ void loop() {
       serial_write_i(timenow);
       serial_write_i(Input);
       sendcount = 0;
+      Serial.send_now(); // adding this makes sure that data packages aren't divided on two sends, but could make transfer slower
+    }
+  
+  }
+
+    if(sendinputref) {
+    
+    sendcount++;
+    if(sendcount == 250) {
+      Serial.write('T');
+      Serial.write('U');
+      uint16_t timenow = (uint16_t) millis();
+      serial_write_i(timenow);
+      serial_write_i(InputRef);
+      sendcount = 0;
       Serial.send_now(); // adding this makes sure that data packages aren't divided on two sends
     }
   
@@ -215,7 +261,7 @@ void loop() {
 }
 
 union intUnion {  
-    int i;  
+    uint16_t i;  
     byte bytes[2];  
 };
 
@@ -224,12 +270,21 @@ union floatUnion {
     byte bytes[4];  
 };
 
+
+int serial_read_i(){
+  intUnion iU;
+  iU.bytes[1] = Serial.read(); // msb
+  iU.bytes[0] = Serial.read(); // lsb
+  return iU.i;
+}
+
 void serial_write_i(int data){
   intUnion iU;
   iU.i = data;
-  Serial.write(iU.bytes[0]); // msb
-  Serial.write(iU.bytes[1]); // lsb
+  Serial.write(iU.bytes[1]); // msb
+  Serial.write(iU.bytes[0]); // lsb
 }
+
 
 float serial_read_f(){    // if used with a device which is in big-endian this order should be reversed
   floatUnion fU;

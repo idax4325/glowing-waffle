@@ -31,6 +31,7 @@ ResFind::ResFind(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t
     
     running = false;        // Set this boolean to true so it can be changed to false with the pause
                             // functions and thus stop the search if necessary
+    allowSPchange = true;
     
     //iWait = 0;              // parameter that makes it possible to wait a bit with declaring resonance
                             // after seeing PDH start. Might not be useful
@@ -138,8 +139,7 @@ bool ResFind::TakeMeThere()
                 lasttimestd = std_ar[ind];
                 lasttimeoffset = offset;
             }
-            
-            *mySetpoint = (uint16_t)offset;    // set the setpoint to the offset
+            if(allowSPchange) *mySetpoint = (uint16_t)offset;    // set the setpoint to the offset
             *AutoPoin = true;
             
             return true;
