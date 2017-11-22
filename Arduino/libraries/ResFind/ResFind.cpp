@@ -20,7 +20,7 @@ ResFind::ResFind(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t
     VP = VerbAddr;
     
     lasttimeoffset = 29000;
-    lasttimestd = 30000;    //should just be a high value so it doesn't "win"
+    lasttimestd = 50000000;    //should just be a high value so it doesn't "win"
     
 //    fin_roffset = 65000;
     
@@ -90,9 +90,9 @@ bool ResFind::TakeMeThere()
         {
             
             for(int a = 0; a < OffStepsize; a++) {
-                Pstd += pow(P_ar[a] - offset, 2);
+                Pstd += abs(P_ar[a] - offset);
             }
-            Pstd = Pstd / ( (float)OffStepsize - 1 );
+//            Pstd = Pstd / ( (float)OffStepsize - 1 ); // should be unnecessary?
             
 //            roffset = roffset/tempOffSS;
 //
@@ -130,13 +130,16 @@ bool ResFind::TakeMeThere()
             
             int ind = ResFind::indexofSmallestElement(std_ar, oldversions);
             
-            if(std_ar[ind] > 19000) {         // if there hasn't been made a new offset
+            if(std_ar[ind] > 49000000) {         // if there hasn't been made a new offset
                 offset = lasttimeoffset;      // use the old one
             }
-            else if(std_ar[ind] > lasttimestd * 2){
+            else if(std_ar[ind] > lasttimestd * 2){ // if the new offset has more variance
                 offset = lasttimeoffset;
             }
-            else {
+            else if(offset_ar[ind] < 20000 || offset_ar[ind] > 40000) { // if the value is completely ridiculous
+                offset = lasttimeoffset;
+            }
+            else {  // the new offset seems sane. Let's use it!
                 offset = offset_ar[ind];
                 lasttimestd = std_ar[ind];
                 lasttimeoffset = offset;
@@ -214,8 +217,8 @@ void ResFind::Initialize()
     
     for(int u = 0; u < oldversions; u++) {
         offset_ar[u] = 0;
-        std_ar[u] = 20000;     // if you change this be sure to change
-                                // the if(std_ar[ind] > 19000) condtion too
+        std_ar[u] = 50000000;     // if you change this be sure to change
+                                // the if(std_ar[ind] > 49000000) condtion too
         //roffset_ar[u] = 0;
         //rstd_ar[u] = 0;
     }
