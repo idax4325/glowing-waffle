@@ -27,13 +27,22 @@ class PIDGUI:
         self.N_button.grid(row=1, column=3, columnspan=3, sticky=W)
 
         self.E_button = Checkbutton(master, text="Send input ref (E)", command=lambda: self.sendchar('E'))
-        self.E_button.grid(row=1, column=6, columnspan=3, sticky=W)
+        self.E_button.grid(row=1, column=5, columnspan=3, sticky=W)
 
         self.O_button = Checkbutton(master, text="Send output (O)", command=lambda:self.sendchar('O'))
-        self.O_button.grid(row=1, column=9, columnspan=3, sticky=W)
+        self.O_button.grid(row=1, column=8, columnspan=3, sticky=W)
 
         self.V_button = Checkbutton(master, text="Verbose mode (V)", command=lambda:self.sendchar('V'))
-        self.V_button.grid(row=1, column=11, columnspan=3, sticky=W)
+        self.V_button.grid(row=1, column=10, columnspan=3, sticky=W)
+
+        self.Scan_entry = Entry(master, width=6)
+        self.Scan_entry.grid(row=1, column=12, sticky=W)
+
+        self.Scan_button = Button(master, text="Scan", command=self.sendScan)
+        self.Scan_button.grid(row=1, column=13, sticky=W)
+
+        self.ScanStop_button = Button(master, text="Stop scan", command=self.stopScan)
+        self.ScanStop_button.grid(row=1, column=14, sticky=W)
 
         self.P_label = Label(master, text="P:")
         self.P_label.grid(row=2, column=0, sticky=W)
@@ -69,7 +78,7 @@ class PIDGUI:
         self.SP_Get_button.grid(row=2, column=11, sticky=W)
 
         self.close_button = Button(master, text="Close", command=self.quit)
-        self.close_button.grid(row=2, column=12, sticky=W)
+        self.close_button.grid(row=2, column=14, sticky=W)
 
         self.fig = plt.figure(1)
         plt.ion()
@@ -78,7 +87,7 @@ class PIDGUI:
         self.canvas = FigureCanvasTkAgg(self.fig, master=root)
         self.plot_widget = self.canvas.get_tk_widget()
 
-        self.plot_widget.grid(row=0, column=0, columnspan=13)
+        self.plot_widget.grid(row=0, column=0, columnspan=15)
 
     def sendall(self):
 
@@ -110,6 +119,14 @@ class PIDGUI:
         ser.write(bytearray(["Z","G"]))
         print("Setpoint requested from Teensy")
 
+    def sendScan(self):
+
+        self.send_ii("C", "S", int(self.Scan_entry.get()))
+
+    def stopScan(self):
+
+        ser.write(bytearray(["C","T"]))
+
     def send_f(self, char, num):
 
         fnum = float(num)*10**-5
@@ -121,6 +138,11 @@ class PIDGUI:
         p1 = (num // 256 ** 1) % 256
         p2 = (num // 256 ** 0) % 256
         ser.write(bytearray([char, p1,p2]))
+
+    def send_ii(self, char, char2, num):
+        p1 = (num // 256 ** 1) % 256
+        p2 = (num // 256 ** 0) % 256
+        ser.write(bytearray([char, char2, p1, p2]))
 
     def sendchar(self, char):
         ser.write(char)
@@ -137,10 +159,10 @@ class PIDGUI:
         root.after_cancel(after)
         self.master.quit()
 
-ser = serial.Serial(
-    port='/dev/cu.usbmodem3175531',  # when port is given here it is automatically opened
-    timeout=0.001,  # semi random value, think more about this
-)
+# ser = serial.Serial(
+#     port='/dev/cu.usbmodem3175531',  # when port is given here it is automatically opened
+#     timeout=0.001,  # semi random value, think more about this
+# )
 
 t_list = []
 V_list = []
@@ -166,7 +188,7 @@ def read():
                     print('Probably lost a message')
                     outt = []
 
-            elif outt[1] == 'O' or outt[1] == 'S' or outt[1] == 'N' or outt[1] == 'E':
+            elif outt[1] == 'O' or outt[1] == 'S' or outt[1] == 'N' or outt[1] == 'E' or outt[1] == 'C':
                 print("Teensy says: " + outt[0] + outt[1])
                 del outt[0:2]
 
@@ -235,7 +257,7 @@ def read():
 root = Tk()
 my_gui = PIDGUI(root)
 
-after = root.after(1, read)
+# after = root.after(1, read)
 root.mainloop()
 
 if savetofile:

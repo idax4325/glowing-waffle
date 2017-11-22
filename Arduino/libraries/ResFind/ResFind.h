@@ -25,7 +25,7 @@ class ResFind
     // variables ************************************************************************
     
     int Direction;
-    int RampSlow;
+    uint16_t RampSlow;
     bool allowSPchange;
     
   private:

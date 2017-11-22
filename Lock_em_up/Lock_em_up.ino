@@ -22,13 +22,14 @@ int sendcount = 0;
 bool OnResonance = false;
 bool PIDAuto = true;
 bool verbosemode = false;
+bool scanning = false;
 
 int inputcount = 0;
 
 uint16_t Input, InputRef, VerboseNum;
 uint16_t Output = 0, Setpoint = 27000;
 
-float HillHeight = 1000; 
+float HillHeight = 5000;//700; 
 
 ResFind myResFind(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &PIDAuto, &verbosemode, &HillHeight);
 
@@ -188,11 +189,43 @@ void loop() {
           }
         }
       }
+      case'C': {
+        char inchar2 = Serial.read();
+        switch(inchar2) {
+          case'S': {
+            
+            uint16_t newRS = serial_read_i();
+            myResFind.RampSlow = newRS;
+            
+            scanning = true;
+
+            Serial.write('R');
+            Serial.write('C');
+            break;
+          }
+          case'T': {
+            scanning = false;
+            Serial.write('R');
+            Serial.write('C');
+            break;
+          }
+        }
+        
+        break;
+      }
     }
   }
 
   Input = analogRead(PIN_INPUT_PDH);
   InputRef = analogRead(PIN_INPUT_REF);
+
+  if(scanning) {
+
+    myResFind.Ramp();
+    
+  }
+
+  else {
 
   if(!OnResonance) {
     
@@ -205,6 +238,8 @@ void loop() {
 
   digitalWrite(led, HIGH);
   OnResonance = myPID.Compute(); // Run the PID to find the correct output
+
+  }
 
   }
   

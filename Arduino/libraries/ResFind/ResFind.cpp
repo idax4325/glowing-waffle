@@ -129,7 +129,7 @@ bool ResFind::TakeMeThere()
             int ind = ResFind::indexofSmallestElement(std_ar, oldversions);
             
             if(std_ar[ind] > 19000) {         // if there hasn't been made a new offset
-                offset = lasttimeoffset;        // use the old one
+                offset = lasttimeoffset;      // use the old one
             }
             else if(std_ar[ind] > lasttimestd * 2){
                 offset = lasttimeoffset;
@@ -216,7 +216,7 @@ void ResFind::Initialize()
     for(int u = 0; u < oldversions; u++) {
         offset_ar[u] = 0;
         std_ar[u] = 20000;     // if you change this be sure to change
-                                // the if(std_ar[ind] > 190000) condtion too
+                                // the if(std_ar[ind] > 19000) condtion too
         //roffset_ar[u] = 0;
         //rstd_ar[u] = 0;
     }
