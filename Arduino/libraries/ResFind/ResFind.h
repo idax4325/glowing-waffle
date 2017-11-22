@@ -62,6 +62,7 @@ class ResFind
     const static int OffStepsize = 30;
 //    uint16_t r_ar [OffStepsize];
     uint16_t P_ar [OffStepsize];
+    int offset1, maxnum;
 
     
 };

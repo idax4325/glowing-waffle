@@ -38,6 +38,8 @@ ResFind::ResFind(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t
     
     RampSlow = 100;
     outpu = 0, q = 0;
+    offset1 = 150;
+    maxnum = 4095-offset1-50;
     
     ResFind::Initialize();
     
@@ -176,13 +178,10 @@ void ResFind::SetLimits(int outmin, int outmax)
     
 void ResFind::Ramp()
 {
-    int offset1 = 150;
-    
-    int maxnum = 4095-offset1-50;
     
     writecount++;
     
-    if(writecount == RampSlow) {
+    if(writecount > RampSlow) {
         
         q++;
         

@@ -29,7 +29,7 @@ int inputcount = 0;
 uint16_t Input, InputRef, VerboseNum;
 uint16_t Output = 0, Setpoint = 27000;
 
-float HillHeight = 5000;//700; 
+float HillHeight = 700; 
 
 ResFind myResFind(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &PIDAuto, &verbosemode, &HillHeight);
 

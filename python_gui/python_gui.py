@@ -125,7 +125,7 @@ class PIDGUI:
 
     def stopScan(self):
 
-        ser.write(bytearray(["C","T"]))
+        ser.write(bytearray(["C", "T"]))
 
     def send_f(self, char, num):
 
@@ -159,10 +159,10 @@ class PIDGUI:
         root.after_cancel(after)
         self.master.quit()
 
-# ser = serial.Serial(
-#     port='/dev/cu.usbmodem3175531',  # when port is given here it is automatically opened
-#     timeout=0.001,  # semi random value, think more about this
-# )
+ser = serial.Serial(
+    port='/dev/cu.usbmodem3175531',  # when port is given here it is automatically opened
+    timeout=0.001,  # semi random value, think more about this
+)
 
 t_list = []
 V_list = []
@@ -257,7 +257,7 @@ def read():
 root = Tk()
 my_gui = PIDGUI(root)
 
-# after = root.after(1, read)
+after = root.after(1, read)
 root.mainloop()
 
 if savetofile:
