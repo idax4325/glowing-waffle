@@ -92,9 +92,9 @@ class PIDGUI:
     def sendall(self):
 
         try:
-            self.send_f("P", int(self.P_entry.get()))
-            self.send_f("I", int(self.I_entry.get()))
-            self.send_f("D", int(self.D_entry.get()))
+            self.send_f("P", float(self.P_entry.get())/100)
+            self.send_f("I", float(self.I_entry.get()))
+            self.send_f("D", float(self.D_entry.get()))
             print("New PID values sent to Teensy")
             return True
         except ValueError:
@@ -129,7 +129,7 @@ class PIDGUI:
 
     def send_f(self, char, num):
 
-        fnum = float(num)*10**-5
+        fnum = num*10**-5
         fasbytearray = pack('>f', fnum)
         ser.write(char + fasbytearray)
 

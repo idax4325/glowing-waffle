@@ -1,46 +1,75 @@
 
-#define PIN_OUTPUT A21
+#define PIN_OUTBIG A21
+#define PIN_OUTSMALL A22
 
-int offset1 = 150; // = 150; // 150 er min
+int offset1 = 150; // 150 is min
 int maxnum = 4095-offset1-50;
 
-RampSlow = 1;
+int RampSlowb = 100;
+int RampSlows = 1; 
 
-int writecount = 0, outpu = 0, q = 0;
+int writecountb = 0, outputb = 0, qb = 0;
+int writecounts = 0, outputs = 0, qs = 0;
 
-uint16_t Output;
+uint16_t OutBig, OutSmall;
 
 
 void setup() {
-  pinMode(PIN_OUTPUT, OUTPUT);
+  pinMode(PIN_OUTBIG, OUTPUT);
+  pinMode(PIN_OUTSMALL, OUTPUT);
 
 }
 
 void loop() {
   
-    writecount++;
+    writecountb++;
     
-    if(writecount == RampSlow) {
+    if(writecountb == RampSlowb) {
         
-        q++;
+        qb++;
         
-        if(q<maxnum) {
-            outpu = q;
+        if(qb<maxnum) {
+            outputb = qb;
         }
         else {
-            outpu = 2*maxnum - q;
+            outputb = 2*maxnum - qb;
         }
         
-        if(q>maxnum*2-1) {
-            q = 0;
+        if(qb>maxnum*2-1) {
+            qb = 0;
         }
         
-        writecount = 0;
+        writecountb = 0;
         
     }
 
-    Output = outpu + offset1;
+    writecounts++;
     
-    analogWrite(PIN_OUTPUT, Output);
+    if(writecounts == RampSlows) {
+        
+        qs++;
+        
+        if(qs<maxnum) {
+            outputs = qs;
+        }
+        else {
+            outputs = 2*maxnum - qs;
+        }
+        
+        if(qs>maxnum*2-1) {
+            qs = 0;
+        }
+        
+        writecounts = 0;
+        
+    }
+
+    OutBig = outputb + offset1;
+
+    OutSmall = outputs + offset1;
+    
+    analogWrite(PIN_OUTBIG, OutBig);
+
+    analogWrite(PIN_OUTSMALL, OutSmall);
 
 }

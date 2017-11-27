@@ -35,6 +35,7 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     PIDforward = true;
     lastAuto = false;
     outputSum = 0;
+    icounter = 0;
 
     PID::SetOutputLimits(0, 3000);
     offcounter = 0;
@@ -92,8 +93,12 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
   int16_t error = *mySetpoint - input;  // shouldn't overflow because the error would need to
                                         // be over 32768 or under -32768
   int16_t dInput = (input - lastInput); // shouldn't overflow for same reason as error
-    
-  outputSum += ki * error;
+
+  icounter++;
+  if(icounter > 1000) {
+    outputSum += ki * error;
+    icounter = 0;
+  }
 
   if(outputSum > outMax) outputSum= outMax;
   else if(outputSum < outMin) outputSum= outMin;

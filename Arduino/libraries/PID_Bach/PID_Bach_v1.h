@@ -84,6 +84,7 @@ class PID
     bool* VP;
     
     int offcounter;
+    int icounter;
 };
 #endif
 

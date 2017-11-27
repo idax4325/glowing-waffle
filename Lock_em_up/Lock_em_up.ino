@@ -67,7 +67,7 @@ void setup() {
 
 // Set the direction of PID
 
-  myPID.PIDforward = true;
+  myPID.PIDforward = false;
 
 // Put the PID in automatic mode (as opposed to manual where it's turned off)
 
