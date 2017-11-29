@@ -27,58 +27,79 @@ class PIDGUI:
         self.N_button.grid(row=1, column=3, columnspan=3, sticky=W)
 
         self.E_button = Checkbutton(master, text="Send input ref (E)", command=lambda: self.sendchar('E'))
-        self.E_button.grid(row=1, column=5, columnspan=3, sticky=W)
+        self.E_button.grid(row=1, column=6, columnspan=3, sticky=W)
 
         self.O_button = Checkbutton(master, text="Send output (O)", command=lambda:self.sendchar('O'))
-        self.O_button.grid(row=1, column=8, columnspan=3, sticky=W)
+        self.O_button.grid(row=1, column=9, columnspan=3, sticky=W)
 
         self.V_button = Checkbutton(master, text="Verbose mode (V)", command=lambda:self.sendchar('V'))
-        self.V_button.grid(row=1, column=10, columnspan=3, sticky=W)
+        self.V_button.grid(row=1, column=12, columnspan=3, sticky=W)
 
-        self.Scan_entry = Entry(master, width=6)
-        self.Scan_entry.grid(row=1, column=12, sticky=W)
+        self.P_label_s = Label(master, text="P:")
+        self.P_label_s.grid(row=2, column=0, sticky=E)
 
-        self.Scan_button = Button(master, text="Scan", command=self.sendScan)
-        self.Scan_button.grid(row=1, column=13, sticky=W)
+        self.P_entry_s = Entry(master, width=6)
+        self.P_entry_s.grid(row=2, column=1, columnspan=2, sticky=W)
 
-        self.ScanStop_button = Button(master, text="Stop scan", command=self.stopScan)
-        self.ScanStop_button.grid(row=1, column=14, sticky=W)
+        self.I_label_s = Label(master, text="I:")
+        self.I_label_s.grid(row=2, column=3, sticky=E)
 
-        self.P_label = Label(master, text="P:")
-        self.P_label.grid(row=2, column=0, sticky=W)
+        self.I_entry_s = Entry(master, width=6)
+        self.I_entry_s.grid(row=2, column=4, columnspan=2, sticky=W)
 
-        self.P_entry = Entry(master, width=6)
-        self.P_entry.grid(row=2, column=1, sticky=W)
+        self.D_label_s = Label(master, text="D:")
+        self.D_label_s.grid(row=2, column=6, sticky=E)
 
-        self.I_label = Label(master, text="I:")
-        self.I_label.grid(row=2, column=2, sticky=W)
+        self.D_entry_s = Entry(master, width=6)
+        self.D_entry_s.grid(row=2, column=7, columnspan=2, sticky=W)
 
-        self.I_entry = Entry(master, width=6)
-        self.I_entry.grid(row=2, column=3, sticky=W)
+        self.Send_button = Button(master, text="Send small PID", command=self.sendall_s)
+        self.Send_button.grid(row=2, column=9, columnspan=3, sticky=W)
 
-        self.D_label = Label(master, text="D:")
-        self.D_label.grid(row=2, column=4, sticky=W)
+        self.P_label_b = Label(master, text="P:")
+        self.P_label_b.grid(row=2, column=12, sticky=E)
 
-        self.D_entry = Entry(master, width=6)
-        self.D_entry.grid(row=2, column=5, sticky=W)
+        self.P_entry_b = Entry(master, width=6)
+        self.P_entry_b.grid(row=2, column=13, columnspan=2, sticky=W)
 
-        self.Send_button = Button(master, text="Send PID", command=self.sendall)
-        self.Send_button.grid(row=2, column=7, sticky=W)
+        self.I_label_b = Label(master, text="I:")
+        self.I_label_b.grid(row=2, column=15, sticky=E)
+
+        self.I_entry_b = Entry(master, width=6)
+        self.I_entry_b.grid(row=2, column=16, columnspan=2, sticky=W)
+
+        self.D_label_b = Label(master, text="D:")
+        self.D_label_b.grid(row=2, column=18, sticky=E)
+
+        self.D_entry_b = Entry(master, width=6)
+        self.D_entry_b.grid(row=2, column=19, columnspan=2, sticky=W)
+
+        self.Send_button_b = Button(master, text="Send big PID", command=self.sendall_b)
+        self.Send_button_b.grid(row=2, column=21, sticky=W)
 
         self.SP_label = Label(master, text="Setpoint:")
-        self.SP_label.grid(row=2, column=8, sticky=W)
+        self.SP_label.grid(row=3, column=0, columnspan=2, sticky=E)
 
         self.SP_entry = Entry(master, width=6)
-        self.SP_entry.grid(row=2, column=9, sticky=W)
+        self.SP_entry.grid(row=3, column=2, columnspan=2, sticky=W)
 
         self.SP_Send_button = Button(master, text="Send SP", command=self.sendSP)
-        self.SP_Send_button.grid(row=2, column=10, sticky=W)
+        self.SP_Send_button.grid(row=3, column=3, columnspan=3, sticky=E)
 
         self.SP_Get_button = Button(master, text="Get SP", command=self.getSP)
-        self.SP_Get_button.grid(row=2, column=11, sticky=W)
+        self.SP_Get_button.grid(row=3, column=6, columnspan=3, sticky=W)
+
+        self.Scan_entry = Entry(master, width=6)
+        self.Scan_entry.grid(row=3, column=7, columnspan=3, sticky=E)
+
+        self.Scan_button = Button(master, text="Scan", command=self.sendScan)
+        self.Scan_button.grid(row=3, column=10, columnspan=3, sticky=W)
+
+        self.ScanStop_button = Button(master, text="Stop scan", command=self.stopScan)
+        self.ScanStop_button.grid(row=3, column=12, columnspan=3, sticky=W)
 
         self.close_button = Button(master, text="Close", command=self.quit)
-        self.close_button.grid(row=2, column=14, sticky=W)
+        self.close_button.grid(row=3, column=21, columnspan=3, sticky=E)
 
         self.fig = plt.figure(1)
         plt.ion()
@@ -87,15 +108,27 @@ class PIDGUI:
         self.canvas = FigureCanvasTkAgg(self.fig, master=root)
         self.plot_widget = self.canvas.get_tk_widget()
 
-        self.plot_widget.grid(row=0, column=0, columnspan=15)
+        self.plot_widget.grid(row=0, column=0, columnspan=21)
 
-    def sendall(self):
+    def sendall_s(self):
 
         try:
-            self.send_f("P", float(self.P_entry.get())/100)
-            self.send_f("I", float(self.I_entry.get()))
-            self.send_f("D", float(self.D_entry.get()))
-            print("New PID values sent to Teensy")
+            self.send_ff("P", "S", float(self.P_entry_s.get()))
+            self.send_ff("I", "S", float(self.I_entry_s.get()))
+            self.send_ff("D", "S", float(self.D_entry_s.get()))
+            print("New small PID values sent to Teensy")
+            return True
+        except ValueError:
+            print("You can only write ints in the textboxes. Write only those and try again")
+            return False
+
+    def sendall_b(self):
+
+        try:
+            self.send_ff("P","B", float(self.P_entry_b.get()))
+            self.send_ff("I", "B", float(self.I_entry_b.get()))
+            self.send_ff("D", "B", float(self.D_entry_b.get()))
+            print("New big PID values sent to Teensy")
             return True
         except ValueError:
             print("You can only write ints in the textboxes. Write only those and try again")
@@ -133,6 +166,12 @@ class PIDGUI:
         fasbytearray = pack('>f', fnum)
         ser.write(char + fasbytearray)
 
+    def send_ff(self, char1, char2, num):
+
+        fnum = num*10**-5
+        fasbytearray = pack('>f', fnum)
+        ser.write(char1 + char2 + fasbytearray)
+
     def send_i(self, char, num):
 
         p1 = (num // 256 ** 1) % 256
@@ -158,11 +197,13 @@ class PIDGUI:
 
         root.after_cancel(after)
         self.master.quit()
-
-ser = serial.Serial(
-    port='/dev/cu.usbmodem3175531',  # when port is given here it is automatically opened
-    timeout=0.001,  # semi random value, think more about this
-)
+try:
+    ser = serial.Serial(
+        port='/dev/cu.usbmodem3175531',  # when port is given here it is automatically opened
+        timeout=0.001,  # semi random value, think more about this
+    )
+except serial.serialutil.SerialException:
+    print("The serial port could not be opened. Check that the teensy is connected and not busy, close the application and try again.")
 
 t_list = []
 V_list = []

@@ -35,7 +35,6 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     PIDforward = true;
     lastAuto = false;
     outputSum = 0;
-    icounter = 0;
 
     PID::SetOutputLimits(0, 3000);
     offcounter = 0;
@@ -74,17 +73,6 @@ bool PID::Compute()
         return false;
     }
 if (*AutoPoin == !lastAuto) PID::Initialize();
-//   if(*myInputRef > *HillPoin * 0.6)      // TEMPORARILY DISABLED FOR TESTING PURPOSES
-//       offcounter++;
-//   if(offcounter > 20)  // SHOULD BE 20 times in a row
-//   {
-//       offcounter = 0;
-//       *DirecPoin = 2;
-//       *AutoPoin = false;
-//       lastAuto = *AutoPoin;
-//       //*myOutput = 2047; // seems unnecessary because of the way ResFind ramps
-//       return false;
-//   }
    
   lastAuto = true;
    
@@ -93,12 +81,11 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
   int16_t error = *mySetpoint - input;  // shouldn't overflow because the error would need to
                                         // be over 32768 or under -32768
   int16_t dInput = (input - lastInput); // shouldn't overflow for same reason as error
+    
+                                        // actually maybe they should be 32 bit. 32K isn't thaaat much
 
-  icounter++;
-  if(icounter > 1000) {
-    outputSum += ki * error;
-    icounter = 0;
-  }
+  outputSum += ki * error;
+
 
   if(outputSum > outMax) outputSum= outMax;
   else if(outputSum < outMin) outputSum= outMin;
@@ -111,7 +98,7 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
 
   /*Compute Rest of PID Output*/
     
-  int16_t PandD = kp * error - kd * dInput;    // this is basically the same as tempOS
+  int16_t PandD = kp * error - kd * dInput;
 
   if(PIDforward) {
     
@@ -123,13 +110,13 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
     
   if(output > outMax)
   {
-      output = outMax; // 80 % of outmax
+      output = outMax;
       //*DirecPoin = 2; // Backwards
       //*AutoPoin = false;
   }
   else if(output < outMin)
   {
-      output = outMin; // 20 % of outmax
+      output = outMin;
       //*DirecPoin = 4; // Forwards
       //*AutoPoin = false;
   }
@@ -190,30 +177,4 @@ void PID::Initialize()
    lastInput = *myInput;
 }
 
-/* SetControllerDirection(...)*************************************************
- * The PID will either be connected to a DIRECT acting process (+Output leads
- * to +Input) or a REVERSE acting process(+Output leads to -Input.)  we need to
- * know which one, because otherwise we may increase the output when we should
- * be decreasing.  This is called from the constructor.
- ******************************************************************************/
-//void PID::SetControllerDirection(int Direction) DOESN'T WORK ANYMORE BECAUSE
-//                                                THERE'S NO SIGN ON PID CONST
-//{
-//   if(Direction !=controllerDirection) // deleted requirement for *AutoPoin = true
-//   {
-//      kp = (0 - kp);
-//      ki = (0 - ki);
-//      kd = (0 - kd);
-//   }
-//   controllerDirection = Direction;
-//}
-
-/* Status Funcions*************************************************************
- * Just because you set the Kp=-1 doesn't mean it actually happened.  these
- * functions query the internal state of the PID.  they're here for display
- * purposes.  this are the functions the PID Front-end uses for example
- ******************************************************************************/
-
-//int PID::GetMode(){ return  *AutoPoin ? AUTOMATIC : MANUAL;}
-//int PID::GetDirection(){ return controllerDirection;}
 

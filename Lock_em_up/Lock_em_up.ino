@@ -10,7 +10,8 @@
 
 #define PIN_INPUT_PDH A1
 #define PIN_INPUT_REF A4
-#define PIN_OUTPUT A21
+#define PIN_OUTBIG A21
+#define PIN_OUTSMALL A22
 
 const int led = LED_BUILTIN;
 
@@ -27,16 +28,20 @@ bool scanning = false;
 int inputcount = 0;
 
 uint16_t Input, InputRef, VerboseNum;
-uint16_t Output = 0, Setpoint = 27000;
+uint16_t OutBig = 0, OutSmall = 0, Setpoint = 27000;
 
 float HillHeight = 700; 
 
-ResFind myResFind(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &PIDAuto, &verbosemode, &HillHeight);
+ResFind myResFind(&Input, &InputRef, &OutBig, &Setpoint, &VerboseNum, &PIDAuto, &verbosemode, &HillHeight);
 
 // Choose the initial values for the PID constants
-float Kp=0, Ki=0, Kd=0;
+float Kp_small=0, Ki_small=0, Kd_small=0;
+float Kp_big=0, Ki_big=0, Kd_big=0;
 
-PID myPID(&Input, &InputRef, &Output, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight);
+PID smallPID(&Input, &InputRef, &OutSmall, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight);
+
+PID bigPID(&Input, &InputRef, &OutBig, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight);
+
 
 int OutputMin = 150, OutputMax = 4045;
 
@@ -47,27 +52,31 @@ void setup() {
   pinMode(led, OUTPUT);
   pinMode(PIN_INPUT_PDH, INPUT);
   pinMode(PIN_INPUT_REF, INPUT);
-  pinMode(PIN_OUTPUT, OUTPUT);
+  pinMode(PIN_OUTSMALL, OUTPUT);
+  pinMode(PIN_OUTBIG, OUTPUT);
   analogWriteResolution(12);
   analogReadResolution(16);
   
-  Input = analogRead(PIN_INPUT_PDH);
-
-
 // Set the output limits
 
    myResFind.SetLimits(OutputMin,OutputMax); 
-   myPID.SetOutputLimits(OutputMin,OutputMax);
+   smallPID.SetOutputLimits(OutputMin,OutputMax);
+   bigPID.SetOutputLimits(OutputMin,OutputMax);
 
 // Set the PID constants
 
-  myPID.kp = Kp;   
-  myPID.ki = Ki;
-  myPID.kd = Kd;
+  smallPID.kp = Kp_small;   
+  smallPID.ki = Ki_small;
+  smallPID.kd = Kd_small;
+
+  bigPID.kp = Kp_big;   
+  bigPID.ki = Ki_big;
+  bigPID.kd = Kd_big;
 
 // Set the direction of PID
 
-  myPID.PIDforward = false;
+  smallPID.PIDforward = false;
+  bigPID.PIDforward = false;
 
 // Put the PID in automatic mode (as opposed to manual where it's turned off)
 
@@ -85,7 +94,8 @@ void loop() {
         if(!OnResonance) 
         myResFind.Running();
         else
-        myPID.SetMode();
+        smallPID.SetMode();
+        bigPID.SetMode();
         
         break;
       }
@@ -132,41 +142,76 @@ void loop() {
         break;
       }
       case 'P': {   // change value of Kp 
+        char inchar2 = Serial.read();
+        switch(inchar2) {
+          case'S': {
+            float newvalue = serial_read_f();
+            smallPID.kp = newvalue;  
 
-        float newvalue = serial_read_f();
-        
-        myPID.kp = newvalue;  
+            Serial.write('R');
+            Serial.write('P');
+            serial_write_f(smallPID.kp);
+            break;
+          }
+          case'B': {
+            float newvalue = serial_read_f();
+            bigPID.kp = newvalue;  
 
-        Serial.write('R');
-        Serial.write('P');
-        serial_write_f(myPID.kp);
-          
+            Serial.write('R');
+            Serial.write('P');
+            serial_write_f(bigPID.kp);
+            break;
+          }  
         break;
-        
+        }
       }
       case 'I': {   // change value of Ki
-        
-        float newvalue = serial_read_f();
-               
-        myPID.ki = newvalue;  
+        char inchar2 = Serial.read();
+        switch(inchar2) {
+          case'S': {
+            float newvalue = serial_read_f();
+            smallPID.ki = newvalue;  
 
-        Serial.write('R');
-        Serial.write('I');
-        serial_write_f(myPID.ki);
-          
+            Serial.write('R');
+            Serial.write('I');
+            serial_write_f(smallPID.ki);
+            break;
+          }
+          case'B': {
+            float newvalue = serial_read_f();
+            bigPID.ki = newvalue;  
+
+            Serial.write('R');
+            Serial.write('I');
+            serial_write_f(bigPID.ki);
+            break;
+          }  
         break;
+        }
       }
       case'D': {    // change value of Kd
-        
-        float newvalue = serial_read_f();
-               
-        myPID.kd = newvalue;  
+        char inchar2 = Serial.read();
+        switch(inchar2) {
+          case'S': {
+            float newvalue = serial_read_f();
+            smallPID.kd = newvalue;  
 
-        Serial.write('R');
-        Serial.write('D');
-        serial_write_f(myPID.kd);
-          
+            Serial.write('R');
+            Serial.write('D');
+            serial_write_f(smallPID.kd);
+            break;
+          }
+          case'B': {
+            float newvalue = serial_read_f();
+            bigPID.kd = newvalue;  
+
+            Serial.write('R');
+            Serial.write('D');
+            serial_write_f(bigPID.kd);
+            break;
+          }  
         break;
+        }
       }
       case'Z': {
         char inchar2 = Serial.read();
@@ -219,6 +264,18 @@ void loop() {
   Input = analogRead(PIN_INPUT_PDH);
   InputRef = analogRead(PIN_INPUT_REF);
 
+//   if(InputRef < HillHeight * 0.5)      // TEMPORARILY DISABLED FOR TESTING PURPOSES
+//       offcounter++;
+//   else
+//       offcounter = 0;
+//
+//   if(offcounter > 100) 
+//   {
+//       offcounter = 0;
+//       myResFind.Direction = 2;
+//       PIDAuto = false;
+//   }
+
   if(scanning) {
 
     myResFind.Ramp();
@@ -237,7 +294,8 @@ void loop() {
   else {
 
   digitalWrite(led, HIGH);
-  OnResonance = myPID.Compute(); // Run the PID to find the correct output
+  smallPID.Compute(); // Run the PID to find the correct output
+  bigPID.Compute();
 
   }
 
@@ -282,7 +340,7 @@ void loop() {
       Serial.write('U');
       uint16_t timenow = (uint16_t) millis();
       serial_write_i(timenow);
-      serial_write_i(Output);
+      serial_write_i(OutSmall);
       sendcount = 0;
       Serial.send_now(); // adding this makes sure that data packages aren't divided on two sends
     }
@@ -291,7 +349,8 @@ void loop() {
 
 
   // Write the output to the chosen output pin
-  analogWrite(PIN_OUTPUT, Output);
+  analogWrite(PIN_OUTSMALL, OutSmall);
+  analogWrite(PIN_OUTBIG, OutBig);
 
 }
 

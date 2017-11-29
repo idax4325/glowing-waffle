@@ -32,21 +32,6 @@ class PID
 										                      //   the application
 	
 
-
-  //available but not commonly used functions ********************************************************
-	  
-
-	//void SetControllerDirection(int);	  // * Sets the Direction, or "Action" of the controller. DIRECT
-										  //   means the output will increase when error is positive. REVERSE
-										  //   means the opposite.  it's very unlikely that this will be needed
-										  //   once it is set in the constructor.
-    
-    
-										  
-  //Display functions ****************************************************************
-    
-//	int GetMode();						  //  inside the PID.
-//	int GetDirection();					  //
     
     
   // Public variables ****************************************************************
@@ -84,7 +69,6 @@ class PID
     bool* VP;
     
     int offcounter;
-    int icounter;
 };
 #endif
 

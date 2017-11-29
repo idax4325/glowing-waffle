@@ -17,6 +17,7 @@ uint16_t OutBig, OutSmall;
 void setup() {
   pinMode(PIN_OUTBIG, OUTPUT);
   pinMode(PIN_OUTSMALL, OUTPUT);
+  analogWriteResolution(12);
 
 }
 
