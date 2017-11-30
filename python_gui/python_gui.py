@@ -113,9 +113,9 @@ class PIDGUI:
     def sendall_s(self):
 
         try:
-            self.send_ff("P", "S", float(self.P_entry_s.get()))
-            self.send_ff("I", "S", float(self.I_entry_s.get()))
-            self.send_ff("D", "S", float(self.D_entry_s.get()))
+            self.send_ff("P", "S", float(self.P_entry_s.get()),5)
+            self.send_ff("I", "S", float(self.I_entry_s.get()),5)
+            self.send_ff("D", "S", float(self.D_entry_s.get()),5)
             print("New small PID values sent to Teensy")
             return True
         except ValueError:
@@ -125,9 +125,9 @@ class PIDGUI:
     def sendall_b(self):
 
         try:
-            self.send_ff("P","B", float(self.P_entry_b.get()))
-            self.send_ff("I", "B", float(self.I_entry_b.get()))
-            self.send_ff("D", "B", float(self.D_entry_b.get()))
+            self.send_ff("P","B", float(self.P_entry_b.get()),7)
+            self.send_ff("I", "B", float(self.I_entry_b.get()),7)
+            self.send_ff("D", "B", float(self.D_entry_b.get()),7)
             print("New big PID values sent to Teensy")
             return True
         except ValueError:
@@ -160,15 +160,15 @@ class PIDGUI:
 
         ser.write(bytearray(["C", "T"]))
 
-    def send_f(self, char, num):
+    def send_f(self, char, num, exp):
 
-        fnum = num*10**-5
+        fnum = num*10**-exp
         fasbytearray = pack('>f', fnum)
         ser.write(char + fasbytearray)
 
-    def send_ff(self, char1, char2, num):
+    def send_ff(self, char1, char2, num, exp):
 
-        fnum = num*10**-5
+        fnum = num*10**-exp
         fasbytearray = pack('>f', fnum)
         ser.write(char1 + char2 + fasbytearray)
 

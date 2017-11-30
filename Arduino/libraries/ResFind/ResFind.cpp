@@ -36,7 +36,7 @@ ResFind::ResFind(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t
     //iWait = 0;              // parameter that makes it possible to wait a bit with declaring resonance
                             // after seeing PDH start. Might not be useful
     
-    RampSlow = 100;
+    RampSlow = 50;
     outpu = 0, q = 0;
     offset1 = 150;
     maxnum = 4095-offset1-50;

@@ -28,9 +28,9 @@ bool scanning = false;
 int inputcount = 0;
 
 uint16_t Input, InputRef, VerboseNum;
-uint16_t OutBig = 0, OutSmall = 0, Setpoint = 27000;
+uint16_t OutBig = 0, OutSmall = 30000, Setpoint = 27000;
 
-float HillHeight = 700; 
+float HillHeight = 1000; 
 
 ResFind myResFind(&Input, &InputRef, &OutBig, &Setpoint, &VerboseNum, &PIDAuto, &verbosemode, &HillHeight);
 
@@ -38,9 +38,9 @@ ResFind myResFind(&Input, &InputRef, &OutBig, &Setpoint, &VerboseNum, &PIDAuto, 
 float Kp_small=0, Ki_small=0, Kd_small=0;
 float Kp_big=0, Ki_big=0, Kd_big=0;
 
-PID smallPID(&Input, &InputRef, &OutSmall, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight);
+PID smallPID(&Input, &InputRef, &OutSmall, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight, true);
 
-PID bigPID(&Input, &InputRef, &OutBig, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight);
+PID bigPID(&Input, &InputRef, &OutBig, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight, false);
 
 
 int OutputMin = 150, OutputMax = 4045;
@@ -76,7 +76,7 @@ void setup() {
 // Set the direction of PID
 
   smallPID.PIDforward = false;
-  bigPID.PIDforward = false;
+  bigPID.PIDforward = true;
 
 // Put the PID in automatic mode (as opposed to manual where it's turned off)
 
@@ -94,8 +94,7 @@ void loop() {
         if(!OnResonance) 
         myResFind.Running();
         else
-        smallPID.SetMode();
-        bigPID.SetMode();
+        smallPID.SetMode(); // the run-bool in the PID class is global so it should only be switched once
         
         break;
       }
@@ -294,8 +293,8 @@ void loop() {
   else {
 
   digitalWrite(led, HIGH);
-  smallPID.Compute(); // Run the PID to find the correct output
-  bigPID.Compute();
+  OnResonance = smallPID.Compute(); // Run the PID to find the correct output
+  OnResonance = bigPID.Compute();
 
   }
 

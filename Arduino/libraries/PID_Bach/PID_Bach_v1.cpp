@@ -19,7 +19,7 @@
  *    reliable defaults, so we need to have the user set them.
  ***************************************************************************/
 PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoint, uint16_t* VerboseNum,
-         int* DirecAddr, bool* AutoAddr, bool* VerbAddr, float* HillAddr)
+         int* DirecAddr, bool* AutoAddr, bool* VerbAddr, float* HillAddr, bool smol)
 {
     myOutput = Output;
     myInput = Input;
@@ -30,6 +30,8 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     AutoPoin = AutoAddr;
     HillPoin = HillAddr;
     VP = VerbAddr;
+    
+    small = smol;
     
     //controllerDirection = DIRECT;
     PIDforward = true;
@@ -46,18 +48,6 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     
 }
 
-/*Constructor (...)*********************************************************
- *    To allow backwards compatability for v1.1, or for people that just want
- *    to use Proportional on Error without explicitly saying so
- ***************************************************************************/
-
-//PID::PID(double* Input, double* Output, double* Setpoint, int* DirecAddr,
-//        double Kp, double Ki, double Kd, int ControllerDirection)
-//    :PID::PID(Input, Output, Setpoint, DirecAddr, Kp, Ki, Kd, P_ON_E, ControllerDirection)
-//{
-//
-//}
-
 
 /* Compute() **********************************************************************
  *     This, as they say, is where the magic happens.  this function should be called
@@ -70,6 +60,7 @@ bool PID::Compute()
     if(!*AutoPoin) {
         lastAuto = false;
         *DirecPoin = 2;
+        if(small) *myOutput = 30000;
         return false;
     }
 if (*AutoPoin == !lastAuto) PID::Initialize();

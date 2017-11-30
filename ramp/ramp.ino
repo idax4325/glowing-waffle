@@ -71,6 +71,6 @@ void loop() {
     
     analogWrite(PIN_OUTBIG, OutBig);
 
-    analogWrite(PIN_OUTSMALL, OutSmall);
+    //analogWrite(PIN_OUTSMALL, OutSmall);
 
 }
