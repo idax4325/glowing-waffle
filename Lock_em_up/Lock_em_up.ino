@@ -160,9 +160,9 @@ void loop() {
             Serial.write('P');
             serial_write_f(bigPID.kp);
             break;
-          }  
-        break;
+          }
         }
+        break;
       }
       case 'I': {   // change value of Ki
         char inchar2 = Serial.read();
@@ -185,8 +185,8 @@ void loop() {
             serial_write_f(bigPID.ki);
             break;
           }  
-        break;
         }
+        break;
       }
       case'D': {    // change value of Kd
         char inchar2 = Serial.read();
@@ -209,8 +209,8 @@ void loop() {
             serial_write_f(bigPID.kd);
             break;
           }  
-        break;
         }
+        break;
       }
       case'Z': {
         char inchar2 = Serial.read();
