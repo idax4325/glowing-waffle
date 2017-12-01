@@ -60,7 +60,7 @@ bool PID::Compute()
     if(!*AutoPoin) {
         lastAuto = false;
         *DirecPoin = 2;
-        if(small) *myOutput = 30000;
+        if(small) *myOutput = 2000;
         return false;
     }
 if (*AutoPoin == !lastAuto) PID::Initialize();
@@ -75,13 +75,19 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
     
                                         // actually maybe they should be 32 bit. 32K isn't thaaat much
 
-  outputSum += ki * error;
-
+  if(PIDforward) {
+        
+      outputSum += ki * error;
+  }
+  else {
+      outputSum -= ki * error;
+  }
+    
 
   if(outputSum > outMax) outputSum= outMax;
   else if(outputSum < outMin) outputSum= outMin;
 
-  int16_t output = lastResFindOutput;   // this needs 12 bit unsigned since that's the output range
+  int16_t output = outputSum;   // this needs 12 bit unsigned since that's the output range
                                         // I made it signed since then going a little too low will make
                                         // it negative and thus bring it to the min instead of it over-
                                         // flowing and going to max
@@ -93,10 +99,10 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
 
   if(PIDforward) {
     
-      output += outputSum + PandD;
+      output += PandD;
   }
   else {
-        output -= outputSum + PandD;
+      output -= PandD;
   }
     
   if(output > outMax)
@@ -163,8 +169,7 @@ void PID::Initialize()
 //   outputSum = *myOutput;
 //   if(outputSum > outMax) outputSum = outMax;
 //   else if(outputSum < outMin) outputSum = outMin;
-   outputSum = 0;
-   lastResFindOutput = *myOutput;
+   outputSum = *myOutput;
    lastInput = *myInput;
 }
 

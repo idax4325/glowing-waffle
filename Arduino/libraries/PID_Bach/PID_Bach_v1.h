@@ -58,8 +58,6 @@ class PID
     bool *AutoPoin;
     float *HillPoin;
     
-    int lastResFindOutput;
-
     int16_t outputSum;
     uint16_t lastInput;
 

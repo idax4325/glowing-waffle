@@ -113,9 +113,9 @@ class PIDGUI:
     def sendall_s(self):
 
         try:
-            self.send_ff("P", "S", float(self.P_entry_s.get()),5)
-            self.send_ff("I", "S", float(self.I_entry_s.get()),5)
-            self.send_ff("D", "S", float(self.D_entry_s.get()),5)
+            self.send_ff("P", "U", float(self.P_entry_s.get()), 5)
+            self.send_ff("I", "U", float(self.I_entry_s.get()), 5)
+            self.send_ff("D", "U", float(self.D_entry_s.get()), 5)
             print("New small PID values sent to Teensy")
             return True
         except ValueError:
@@ -125,9 +125,9 @@ class PIDGUI:
     def sendall_b(self):
 
         try:
-            self.send_ff("P","B", float(self.P_entry_b.get()),7)
-            self.send_ff("I", "B", float(self.I_entry_b.get()),7)
-            self.send_ff("D", "B", float(self.D_entry_b.get()),7)
+            self.send_ff("P", "B", float(self.P_entry_b.get()), 8)
+            self.send_ff("I", "B", float(self.I_entry_b.get()), 8)
+            self.send_ff("D", "B", float(self.D_entry_b.get()), 8)
             print("New big PID values sent to Teensy")
             return True
         except ValueError:
@@ -170,7 +170,8 @@ class PIDGUI:
 
         fnum = num*10**-exp
         fasbytearray = pack('>f', fnum)
-        ser.write(char1 + char2 + fasbytearray)
+        out = bytearray([char1, char2]) + fasbytearray
+        ser.write(out)
 
     def send_i(self, char, num):
 
@@ -241,7 +242,6 @@ def read():
                 except IndexError:
                     print("Probably lost a data point")
                     outt = []
-
 
         elif outt[0] == 'T':
 

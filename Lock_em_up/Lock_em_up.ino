@@ -28,7 +28,7 @@ bool scanning = false;
 int inputcount = 0;
 
 uint16_t Input, InputRef, VerboseNum;
-uint16_t OutBig = 0, OutSmall = 30000, Setpoint = 27000;
+uint16_t OutBig = 0, OutSmall = 2000, Setpoint = 27000;
 
 float HillHeight = 1000; 
 
@@ -143,7 +143,7 @@ void loop() {
       case 'P': {   // change value of Kp 
         char inchar2 = Serial.read();
         switch(inchar2) {
-          case'S': {
+          case'U': {
             float newvalue = serial_read_f();
             smallPID.kp = newvalue;  
 
@@ -167,7 +167,7 @@ void loop() {
       case 'I': {   // change value of Ki
         char inchar2 = Serial.read();
         switch(inchar2) {
-          case'S': {
+          case'U': {
             float newvalue = serial_read_f();
             smallPID.ki = newvalue;  
 
@@ -191,7 +191,7 @@ void loop() {
       case'D': {    // change value of Kd
         char inchar2 = Serial.read();
         switch(inchar2) {
-          case'S': {
+          case'U': {
             float newvalue = serial_read_f();
             smallPID.kd = newvalue;  
 
