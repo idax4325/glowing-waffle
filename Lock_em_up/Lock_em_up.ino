@@ -6,7 +6,7 @@
 #include <ResFind.h>
 #include <PID_Bach_v1.h>
 #include <SPI.h>
-//#include <PID_AutoTune_v0.h>
+#include <ADC.h>
 
 #define PIN_INPUT_PDH A1
 #define PIN_INPUT_REF A4
@@ -20,6 +20,8 @@ char inChar;
 bool sendinput, sendinputref, sendoutput;
 int sendcount = 0;
 
+int offcounter = 0;
+
 bool OnResonance = false;
 bool PIDAuto = true;
 bool verbosemode = false;
@@ -28,9 +30,11 @@ bool scanning = false;
 int inputcount = 0;
 
 uint16_t Input, InputRef, VerboseNum;
-uint16_t OutBig = 0, OutSmall = 2000, Setpoint = 27000;
+uint16_t OutBig = 0, OutSmall = 2000, Setpoint = 38000;
 
-float HillHeight = 1000; 
+float HillHeight = 400; 
+
+ADC *adc = new ADC();
 
 ResFind myResFind(&Input, &InputRef, &OutBig, &Setpoint, &VerboseNum, &PIDAuto, &verbosemode, &HillHeight);
 
@@ -55,7 +59,10 @@ void setup() {
   pinMode(PIN_OUTSMALL, OUTPUT);
   pinMode(PIN_OUTBIG, OUTPUT);
   analogWriteResolution(12);
-  analogReadResolution(16);
+  //analogReadResolution(16);
+  adc->setResolution(16);
+  adc->setConversionSpeed(ADC_CONVERSION_SPEED::VERY_HIGH_SPEED);
+  adc->setSamplingSpeed(ADC_SAMPLING_SPEED::VERY_HIGH_SPEED);
   
 // Set the output limits
 
@@ -229,9 +236,9 @@ void loop() {
             Serial.write('Z');
             serial_write_i(Setpoint);
             break;
-          break;
           }
         }
+        break;
       }
       case'C': {
         char inchar2 = Serial.read();
@@ -254,26 +261,25 @@ void loop() {
             break;
           }
         }
-        
         break;
       }
     }
   }
 
-  Input = analogRead(PIN_INPUT_PDH);
-  InputRef = analogRead(PIN_INPUT_REF);
+  Input = adc->analogRead(PIN_INPUT_PDH);
+  InputRef = adc->analogRead(PIN_INPUT_REF);
 
-//   if(InputRef < HillHeight * 0.5)      // TEMPORARILY DISABLED FOR TESTING PURPOSES
-//       offcounter++;
-//   else
-//       offcounter = 0;
-//
-//   if(offcounter > 100) 
-//   {
-//       offcounter = 0;
-//       myResFind.Direction = 2;
-//       PIDAuto = false;
-//   }
+   if(InputRef < HillHeight * 0.5)
+       offcounter++;
+   else
+       offcounter = 0;
+
+   if(offcounter > 100) 
+   {
+       offcounter = 0;
+       myResFind.Direction = 2;
+       PIDAuto = false;
+   }
 
   if(scanning) {
 
@@ -339,7 +345,7 @@ void loop() {
       Serial.write('U');
       uint16_t timenow = (uint16_t) millis();
       serial_write_i(timenow);
-      serial_write_i(OutSmall);
+      serial_write_i(OutBig);
       sendcount = 0;
       Serial.send_now(); // adding this makes sure that data packages aren't divided on two sends
     }

@@ -19,7 +19,7 @@ ResFind::ResFind(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t
     HillPoin = HillAddr;
     VP = VerbAddr;
     
-    lasttimeoffset = 29000;
+    lasttimeoffset = 40000;
     lasttimestd = 50000000;    //should just be a high value so it doesn't "win"
     
 //    fin_roffset = 65000;
