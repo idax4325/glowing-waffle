@@ -32,7 +32,7 @@ int inputcount = 0;
 uint16_t Input, InputRef, VerboseNum;
 uint16_t OutBig = 0, OutSmall = 2000, Setpoint = 38000;
 
-float HillHeight = 400; 
+float HillHeight = 800; 
 
 ADC *adc = new ADC();
 
@@ -282,7 +282,7 @@ void loop() {
    else
        offcounter = 0;
 
-   if(offcounter > 100) 
+   if(offcounter > 1000) 
    {
        offcounter = 0;
        myResFind.Direction = 2;
@@ -318,7 +318,7 @@ void loop() {
   if(sendinput) {
     
     sendcount++;
-    if(sendcount == 1000) {
+    if(sendcount == 5000) {
       Serial.write('T');
       Serial.write('U');
       uint16_t timenow = (uint16_t) millis();
@@ -333,7 +333,7 @@ void loop() {
     if(sendinputref) {
     
     sendcount++;
-    if(sendcount == 1000) {
+    if(sendcount == 5000) {
       Serial.write('T');
       Serial.write('U');
       uint16_t timenow = (uint16_t) millis();
@@ -348,7 +348,7 @@ void loop() {
   if(sendoutput) {
     
     sendcount++;
-    if(sendcount == 1000) {
+    if(sendcount == 5000) {
       Serial.write('T');
       Serial.write('U');
       uint16_t timenow = (uint16_t) millis();

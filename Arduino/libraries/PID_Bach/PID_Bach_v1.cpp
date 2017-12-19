@@ -115,7 +115,7 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
       outputS = outMin;
   }
     
-  *myOutputS = outputS;
+  *myOutputS = -outputS;
   *myOutputB = output;
     
 
