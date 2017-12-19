@@ -8,8 +8,8 @@
 #include <SPI.h>
 #include <ADC.h>
 
-#define PIN_INPUT_PDH A1
-#define PIN_INPUT_REF A4
+#define PIN_INPUT_PDH A20
+#define PIN_INPUT_REF A3
 #define PIN_OUTBIG A21
 #define PIN_OUTSMALL A22
 
@@ -58,11 +58,19 @@ void setup() {
   pinMode(PIN_INPUT_REF, INPUT);
   pinMode(PIN_OUTSMALL, OUTPUT);
   pinMode(PIN_OUTBIG, OUTPUT);
+  
   analogWriteResolution(12);
   //analogReadResolution(16);
+  
   adc->setResolution(16);
-  adc->setConversionSpeed(ADC_CONVERSION_SPEED::VERY_HIGH_SPEED);
-  adc->setSamplingSpeed(ADC_SAMPLING_SPEED::VERY_HIGH_SPEED);
+  adc->setConversionSpeed(ADC_CONVERSION_SPEED::HIGH_SPEED);
+  adc->setSamplingSpeed(ADC_SAMPLING_SPEED::HIGH_SPEED);
+  
+  adc->setResolution(16, ADC_1);
+  adc->setConversionSpeed(ADC_CONVERSION_SPEED::HIGH_SPEED, ADC_1);
+  adc->setSamplingSpeed(ADC_SAMPLING_SPEED::HIGH_SPEED, ADC_1);
+
+  adc->startSynchronizedContinuous(PIN_INPUT_REF, PIN_INPUT_PDH);
   
 // Set the output limits
 
@@ -88,7 +96,10 @@ void setup() {
 // Put the PID in automatic mode (as opposed to manual where it's turned off)
 
 //   myPID.SetMode(AUTOMATIC); Value already set.
+
 }
+
+ADC::Sync_result InputStruct;
 
 void loop() {
 
@@ -266,8 +277,10 @@ void loop() {
     }
   }
 
-  Input = adc->analogRead(PIN_INPUT_PDH);
-  InputRef = adc->analogRead(PIN_INPUT_REF);
+  InputStruct = adc->readSynchronizedContinuous();
+  
+  Input = InputStruct.result_adc1;
+  InputRef = InputStruct.result_adc0;
 
    if(InputRef < HillHeight * 0.5)
        offcounter++;
@@ -280,7 +293,7 @@ void loop() {
        myResFind.Direction = 2;
        PIDAuto = false;
    }
-
+   
   if(scanning) {
 
     myResFind.Ramp();
@@ -310,7 +323,7 @@ void loop() {
   if(sendinput) {
     
     sendcount++;
-    if(sendcount == 250) {
+    if(sendcount == 1000) {
       Serial.write('T');
       Serial.write('U');
       uint16_t timenow = (uint16_t) millis();
@@ -325,7 +338,7 @@ void loop() {
     if(sendinputref) {
     
     sendcount++;
-    if(sendcount == 250) {
+    if(sendcount == 1000) {
       Serial.write('T');
       Serial.write('U');
       uint16_t timenow = (uint16_t) millis();
@@ -340,7 +353,7 @@ void loop() {
   if(sendoutput) {
     
     sendcount++;
-    if(sendcount == 250) {
+    if(sendcount == 1000) {
       Serial.write('T');
       Serial.write('U');
       uint16_t timenow = (uint16_t) millis();
