@@ -39,12 +39,12 @@ ADC *adc = new ADC();
 ResFind myResFind(&Input, &InputRef, &OutBig, &Setpoint, &VerboseNum, &PIDAuto, &verbosemode, &HillHeight);
 
 // Choose the initial values for the PID constants
-float Kp_small=0, Ki_small=0, Kd_small=0;
+//float Kp_small=0, Ki_small=0, Kd_small=0;
 float Kp_big=0, Ki_big=0, Kd_big=0;
 
-PID smallPID(&Input, &InputRef, &OutSmall, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight, true);
+//PID smallPID(&Input, &InputRef, &OutSmall, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight, true);
 
-PID bigPID(&Input, &InputRef, &OutBig, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight, false);
+PID bigPID(&Input, &InputRef, &OutSmall, &OutBig, &Setpoint, &VerboseNum, &myResFind.Direction, &PIDAuto, &verbosemode, &HillHeight);
 
 
 int OutputMin = 150, OutputMax = 4045;
@@ -75,23 +75,18 @@ void setup() {
 // Set the output limits
 
    myResFind.SetLimits(OutputMin,OutputMax); 
-   smallPID.SetOutputLimits(OutputMin,OutputMax);
+//   smallPID.SetOutputLimits(OutputMin,OutputMax);
    bigPID.SetOutputLimits(OutputMin,OutputMax);
 
 // Set the PID constants
 
-  smallPID.kp = Kp_small;   
-  smallPID.ki = Ki_small;
-  smallPID.kd = Kd_small;
+//  smallPID.kp = Kp_small;   
+//  smallPID.ki = Ki_small;
+//  smallPID.kd = Kd_small;
 
   bigPID.kp = Kp_big;   
   bigPID.ki = Ki_big;
   bigPID.kd = Kd_big;
-
-// Set the direction of PID
-
-  smallPID.PIDforward = false;
-  bigPID.PIDforward = true;
 
 // Put the PID in automatic mode (as opposed to manual where it's turned off)
 
@@ -112,7 +107,7 @@ void loop() {
         if(!OnResonance) 
         myResFind.Running();
         else
-        smallPID.SetMode(); // the run-bool in the PID class is global so it should only be switched once
+        bigPID.SetMode(); // the run-bool in the PID class is global so it should only be switched once
         
         break;
       }
@@ -162,12 +157,12 @@ void loop() {
         char inchar2 = Serial.read();
         switch(inchar2) {
           case'U': {
-            float newvalue = serial_read_f();
-            smallPID.kp = newvalue;  
-
-            Serial.write('R');
-            Serial.write('P');
-            serial_write_f(smallPID.kp);
+//            float newvalue = serial_read_f();
+//            smallPID.kp = newvalue;  
+//
+//            Serial.write('R');
+//            Serial.write('P');
+//            serial_write_f(smallPID.kp);
             break;
           }
           case'B': {
@@ -186,12 +181,12 @@ void loop() {
         char inchar2 = Serial.read();
         switch(inchar2) {
           case'U': {
-            float newvalue = serial_read_f();
-            smallPID.ki = newvalue;  
-
-            Serial.write('R');
-            Serial.write('I');
-            serial_write_f(smallPID.ki);
+//            float newvalue = serial_read_f();
+//            smallPID.ki = newvalue;  
+//
+//            Serial.write('R');
+//            Serial.write('I');
+//            serial_write_f(smallPID.ki);
             break;
           }
           case'B': {
@@ -210,12 +205,12 @@ void loop() {
         char inchar2 = Serial.read();
         switch(inchar2) {
           case'U': {
-            float newvalue = serial_read_f();
-            smallPID.kd = newvalue;  
-
-            Serial.write('R');
-            Serial.write('D');
-            serial_write_f(smallPID.kd);
+//            float newvalue = serial_read_f();
+//            smallPID.kd = newvalue;  
+//
+//            Serial.write('R');
+//            Serial.write('D');
+//            serial_write_f(smallPID.kd);
             break;
           }
           case'B': {
@@ -312,7 +307,7 @@ void loop() {
   else {
 
   digitalWrite(led, HIGH);
-  OnResonance = smallPID.Compute(); // Run the PID to find the correct output
+//  OnResonance = smallPID.Compute(); // Run the PID to find the correct output
   OnResonance = bigPID.Compute();
 
   }

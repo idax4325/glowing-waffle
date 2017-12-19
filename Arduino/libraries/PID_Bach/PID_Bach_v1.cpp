@@ -18,10 +18,11 @@
  *    The parameters specified here are those for for which we can't set up
  *    reliable defaults, so we need to have the user set them.
  ***************************************************************************/
-PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoint, uint16_t* VerboseNum,
-         int* DirecAddr, bool* AutoAddr, bool* VerbAddr, float* HillAddr, bool smol)
+PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* OutputSmall, uint16_t* OutputBig, uint16_t* Setpoint, uint16_t* VerboseNum,
+         int* DirecAddr, bool* AutoAddr, bool* VerbAddr, float* HillAddr)
 {
-    myOutput = Output;
+    myOutputS = OutputSmall;
+    myOutputB = OutputBig;
     myInput = Input;
     myInputRef = InputRef;
     mySetpoint = Setpoint;
@@ -31,10 +32,7 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     HillPoin = HillAddr;
     VP = VerbAddr;
     
-    small = smol;
-    
     //controllerDirection = DIRECT;
-    PIDforward = true;
     lastAuto = false;
     outputSum = 0;
 
@@ -43,6 +41,8 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* Output, uint16_t* Setpoi
     kp = 0.0001;
     ki = 0;
     kd = 0;
+    
+    BSfac = 43.5;
     
     //PID::SetControllerDirection(DIRECT);
     
@@ -60,7 +60,7 @@ bool PID::Compute()
     if(!*AutoPoin) {
         lastAuto = false;
         *DirecPoin = 2;
-        if(small) *myOutput = 2000;
+        *myOutputS = 2000;
         return false;
     }
 if (*AutoPoin == !lastAuto) PID::Initialize();
@@ -74,16 +74,8 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
   int16_t dInput = (input - lastInput); // shouldn't overflow for same reason as error
     
                                         // actually maybe they should be 32 bit. 32K isn't thaaat much
-
-  if(PIDforward) {
-        
-      outputSum += ki * error;
-  }
-  else {
-      outputSum -= ki * error;
-  }
+  outputSum += ki * error;
     
-
   if(outputSum > outMax) outputSum= outMax;
   else if(outputSum < outMin) outputSum= outMin;
 
@@ -91,20 +83,16 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
                                         // I made it signed since then going a little too low will make
                                         // it negative and thus bring it to the min instead of it over-
                                         // flowing and going to max
+  int16_t outputS = 2000;
     
 
   /*Compute Rest of PID Output*/
     
-  int16_t PandD = kp * error - kd * dInput;
+  float PandD = kp * error - kd * dInput;
 
-  if(PIDforward) {
-    
-      output += PandD;
-  }
-  else {
-      output -= PandD;
-  }
-    
+  output += PandD;
+  outputS += int((outputSum + PandD - output)*BSfac + 0.5);
+
   if(output > outMax)
   {
       output = outMax;
@@ -118,7 +106,18 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
       //*AutoPoin = false;
   }
     
-    *myOutput = output;
+  if(outputS > outMax)
+  {
+    outputS = outMax;
+  }
+  else if(outputS < outMin)
+  {
+      outputS = outMin;
+  }
+    
+  *myOutputS = outputS;
+  *myOutputB = output;
+    
 
   /*Remember some variables for next time*/
   lastInput = input;
@@ -142,8 +141,8 @@ void PID::SetOutputLimits(int Min, int Max)
 
    if(*AutoPoin)
    {
-	   if(*myOutput > outMax) *myOutput = outMax;
-	   else if(*myOutput < outMin) *myOutput = outMin;
+	   if(*myOutputB > outMax) *myOutputB = outMax;
+	   else if(*myOutputB < outMin) *myOutputB = outMin;
 
 	   if(outputSum > outMax) outputSum= outMax;
 	   else if(outputSum < outMin) outputSum= outMin;
@@ -169,7 +168,7 @@ void PID::Initialize()
 //   outputSum = *myOutput;
 //   if(outputSum > outMax) outputSum = outMax;
 //   else if(outputSum < outMin) outputSum = outMin;
-   outputSum = *myOutput;
+   outputSum = *myOutputB;
    lastInput = *myInput;
 }
 

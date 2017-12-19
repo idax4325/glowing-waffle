@@ -17,8 +17,8 @@ class PID
   #define P_ON_E 1
 
   //commonly used functions **************************************************************************
-    PID(uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*, int*, bool*,  // * constructor.  links the PID to the Input, Output, and
-        bool*, float*, bool);//   Setpoint.  Initial tuning parameters are also set here.
+    PID(uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*, int*, bool*,  // * constructor.  links the PID to the Input, Output, and
+        bool*, float*);//   Setpoint.  Initial tuning parameters are also set here.
 
     void SetMode();               // * sets PID to either Manual (0) or Auto (non-0)
 
@@ -39,7 +39,6 @@ class PID
     float kp;                  // * (P)roportional Tuning Parameter
     float ki;                  // * (I)ntegral Tuning Parameter
     float kd;                  // * (D)erivative Tuning Parameter
-    bool PIDforward;
     
     // Private variables ****************************************************************
     
@@ -48,17 +47,19 @@ class PID
 
 	int pOn;
 
+    float BSfac;
+    
     uint16_t *myInput;              // * Pointers to the Input, Output, and Setpoint variables
-    uint16_t *myOutput;             //   This creates a hard link between the variables and the
+    uint16_t *myOutputB;             //   This creates a hard link between the variables and the
     uint16_t *mySetpoint;           //   PID, freeing the user from having to constantly tell us
-                                  //   what these values are.  with pointers we'll just know.
+    uint16_t *myOutputS;                              //   what these values are.  with pointers we'll just know.
     uint16_t *myInputRef;
     uint16_t *myVerboseNum;
     int *DirecPoin;
     bool *AutoPoin;
     float *HillPoin;
     
-    int16_t outputSum;
+    float outputSum;
     uint16_t lastInput;
 
 	double outMin, outMax;
