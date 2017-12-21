@@ -40,6 +40,8 @@ class PID
     float ki;                  // * (I)ntegral Tuning Parameter
     float kd;                  // * (D)erivative Tuning Parameter
     
+    float ampcon;
+    
     // Private variables ****************************************************************
     
   private:
@@ -62,7 +64,7 @@ class PID
     float outputSum;
     uint16_t lastInput;
 
-	double outMin, outMax;
+	uint16_t outMin, outMax;
 	bool pOnE;
     bool lastAuto;
     bool* VP;

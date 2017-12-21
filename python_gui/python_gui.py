@@ -35,26 +35,26 @@ class PIDGUI:
         self.V_button = Checkbutton(master, text="Verbose mode (V)", command=lambda:self.sendchar('V'))
         self.V_button.grid(row=1, column=12, columnspan=3, sticky=W)
 
-        self.P_label_s = Label(master, text="P:")
+        self.P_label_s = Label(master, text="PIDamp:")
         self.P_label_s.grid(row=2, column=0, sticky=E)
 
         self.P_entry_s = Entry(master, width=6)
         self.P_entry_s.grid(row=2, column=1, columnspan=2, sticky=W)
 
-        self.I_label_s = Label(master, text="I:")
+        self.I_label_s = Label(master, text="HH:")
         self.I_label_s.grid(row=2, column=3, sticky=E)
 
         self.I_entry_s = Entry(master, width=6)
         self.I_entry_s.grid(row=2, column=4, columnspan=2, sticky=W)
+        #
+        # self.D_label_s = Label(master, text="D:")
+        # self.D_label_s.grid(row=2, column=6, sticky=E)
+        #
+        # self.D_entry_s = Entry(master, width=6)
+        # self.D_entry_s.grid(row=2, column=7, columnspan=2, sticky=W)
 
-        self.D_label_s = Label(master, text="D:")
-        self.D_label_s.grid(row=2, column=6, sticky=E)
-
-        self.D_entry_s = Entry(master, width=6)
-        self.D_entry_s.grid(row=2, column=7, columnspan=2, sticky=W)
-
-        self.Send_button = Button(master, text="Send small PID", command=self.sendall_s)
-        self.Send_button.grid(row=2, column=9, columnspan=3, sticky=W)
+        self.Send_button = Button(master, text="Send PIDamp and HillHeight", command=self.sendPIDamp)
+        self.Send_button.grid(row=2, column=6, columnspan=3, sticky=W)
 
         self.P_label_b = Label(master, text="P:")
         self.P_label_b.grid(row=2, column=12, sticky=E)
@@ -74,7 +74,7 @@ class PIDGUI:
         self.D_entry_b = Entry(master, width=6)
         self.D_entry_b.grid(row=2, column=19, columnspan=2, sticky=W)
 
-        self.Send_button_b = Button(master, text="Send big PID", command=self.sendall_b)
+        self.Send_button_b = Button(master, text="Send PID", command=self.sendall_b)
         self.Send_button_b.grid(row=2, column=21, sticky=W)
 
         self.SP_label = Label(master, text="Setpoint:")
@@ -110,13 +110,12 @@ class PIDGUI:
 
         self.plot_widget.grid(row=0, column=0, columnspan=21)
 
-    def sendall_s(self):
+    def sendPIDamp(self):
 
         try:
-            self.send_ff("P", "U", float(self.P_entry_s.get()), 5)
-            self.send_ff("I", "U", float(self.I_entry_s.get()), 5)
-            self.send_ff("D", "U", float(self.D_entry_s.get()), 5)
-            print("New small PID values sent to Teensy")
+            self.send_ff("P", "U", float(self.P_entry_s.get()), 2)
+            self.send_ff("I", "U", float(self.I_entry_s.get()), 0)
+            print("New PIDamp and HillHeight value sent to teensy")
             return True
         except ValueError:
             print("You can only write ints in the textboxes. Write only those and try again")

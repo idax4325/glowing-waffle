@@ -225,6 +225,8 @@ void ResFind::Initialize()
     
     q += 100;
     
+    ResFind::Ramp();
+    
     // Sets initial values for the TakeMeThere function.
     
 }

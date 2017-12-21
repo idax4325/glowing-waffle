@@ -32,7 +32,9 @@ int inputcount = 0;
 uint16_t Input, InputRef, VerboseNum;
 uint16_t OutBig = 0, OutSmall = 2000, Setpoint = 38000;
 
-float HillHeight = 800; 
+float HillHeight = 70; 
+
+float PIDamp = 1;
 
 ADC *adc = new ADC();
 
@@ -157,12 +159,16 @@ void loop() {
         char inchar2 = Serial.read();
         switch(inchar2) {
           case'U': {
-//            float newvalue = serial_read_f();
-//            smallPID.kp = newvalue;  
-//
-//            Serial.write('R');
-//            Serial.write('P');
-//            serial_write_f(smallPID.kp);
+            float newvalue = serial_read_f();
+            PIDamp = newvalue;  
+
+            bigPID.ampcon = PIDamp;
+
+            HillHeight = HillHeight * 1/PIDamp;
+
+            Serial.write('R');
+            Serial.write('P');
+            serial_write_f(PIDamp);
             break;
           }
           case'B': {
@@ -181,12 +187,12 @@ void loop() {
         char inchar2 = Serial.read();
         switch(inchar2) {
           case'U': {
-//            float newvalue = serial_read_f();
-//            smallPID.ki = newvalue;  
-//
-//            Serial.write('R');
-//            Serial.write('I');
-//            serial_write_f(smallPID.ki);
+            float newHH = serial_read_f();
+            HillHeight = newHH;  
+
+            Serial.write('R');
+            Serial.write('I');
+            serial_write_f(HillHeight);
             break;
           }
           case'B': {

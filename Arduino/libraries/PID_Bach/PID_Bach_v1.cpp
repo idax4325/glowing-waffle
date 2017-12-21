@@ -35,6 +35,8 @@ PID::PID(uint16_t* Input, uint16_t* InputRef, uint16_t* OutputSmall, uint16_t* O
     //controllerDirection = DIRECT;
     lastAuto = false;
     outputSum = 0;
+    
+    ampcon = 1;
 
     PID::SetOutputLimits(0, 3000);
     offcounter = 0;
@@ -66,15 +68,20 @@ bool PID::Compute()
 if (*AutoPoin == !lastAuto) PID::Initialize();
    
   lastAuto = true;
+    
+  float Kp, Ki, Kd;
+    
+  Kp = ampcon * kp;
+  Ki = ampcon * ki;
+  Kd = ampcon * kd;
    
   /*Compute all the working error variables*/
   uint16_t input = *myInput;            // can't overflow because read res is 16 bit too
-  int16_t error = *mySetpoint - input;  // shouldn't overflow because the error would need to
+  int32_t error = *mySetpoint - input;  // shouldn't overflow because the error would need to
                                         // be over 32768 or under -32768
-  int16_t dInput = (input - lastInput); // shouldn't overflow for same reason as error
+  int32_t dInput = (input - lastInput); // shouldn't overflow for same reason as error
     
-                                        // actually maybe they should be 32 bit. 32K isn't thaaat much
-  outputSum += ki * error;
+  outputSum += Ki * error;
     
   if(outputSum > outMax) outputSum= outMax;
   else if(outputSum < outMin) outputSum= outMin;
@@ -88,10 +95,10 @@ if (*AutoPoin == !lastAuto) PID::Initialize();
 
   /*Compute Rest of PID Output*/
     
-  float PandD = kp * error - kd * dInput;
+  float PandD = Kp * error - Kd * dInput;
 
   output += PandD;
-  outputS += int((outputSum + PandD - output)*BSfac + 0.5);
+  outputS += int16_t((outputSum + PandD - output)*BSfac + 0.5);
 
   if(output > outMax)
   {
